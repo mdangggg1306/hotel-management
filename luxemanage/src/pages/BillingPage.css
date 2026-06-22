@@ -1,0 +1,271 @@
+/* ===== BILLING ===== */
+.bill-page { min-height: 100vh; }
+
+.bill-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.breadcrumb-item {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+}
+.breadcrumb-item.active { color: rgba(255,255,255,0.6); }
+.breadcrumb-sep { color: rgba(255,255,255,0.2); font-size: 12px; }
+
+.bill-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 24px;
+}
+.bill-header-actions { display: flex; gap: 12px; margin-top: 10px; }
+
+/* Grid */
+.bill-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.bill-left {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.bill-card { overflow: hidden; }
+
+/* Guest section */
+.bill-guest-section { padding: 18px 20px; }
+.bill-guest-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.bill-guest-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7c3aed, #a78bfa);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+.bill-guest-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: white;
+}
+.bill-guest-tier {
+  font-size: 11.5px;
+  color: #c9a84c;
+  margin-top: 2px;
+}
+
+.bill-detail-rows { display: flex; flex-direction: column; gap: 12px; }
+.bill-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13.5px;
+}
+.bd-label { color: rgba(255,255,255,0.4); font-weight: 500; }
+.bd-value { color: rgba(255,255,255,0.85); font-weight: 600; }
+.bd-value.highlight { color: #fbbf24; }
+
+/* Payment methods */
+.payment-methods {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.payment-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1.5px solid rgba(255,255,255,0.07);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 200ms;
+}
+.payment-option:hover { background: rgba(255,255,255,0.03); }
+.payment-option.selected {
+  border-color: #c9a84c;
+  background: rgba(201,168,76,0.06);
+}
+.payment-radio {
+  width: 18px; height: 18px;
+  border: 1.5px solid rgba(255,255,255,0.25);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 200ms;
+}
+.payment-option.selected .payment-radio { border-color: #c9a84c; }
+.radio-dot {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: transparent;
+  transition: background 200ms;
+}
+.radio-dot.active { background: #c9a84c; }
+
+.payment-icon { color: rgba(255,255,255,0.5); }
+.payment-label { font-size: 13.5px; font-weight: 600; color: rgba(255,255,255,0.85); }
+.payment-sub   { font-size: 11.5px; color: rgba(255,255,255,0.35); margin-top: 1px; }
+
+/* Bill Right */
+.bill-right-card { overflow: hidden; }
+
+/* Bill Table */
+.bill-table {
+  padding: 0 20px;
+}
+.bill-table-head {
+  display: grid;
+  grid-template-columns: 1fr 120px 100px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+}
+.bill-item {
+  display: grid;
+  grid-template-columns: 1fr 120px 100px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  align-items: center;
+  gap: 12px;
+}
+.bill-item:last-child { border-bottom: none; }
+.bill-item-discount {}
+.bill-item-desc {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.85);
+}
+.bill-item-note {
+  font-size: 11.5px;
+  color: rgba(255,255,255,0.35);
+  margin-top: 2px;
+}
+.bill-item-discount .bill-item-note { color: #c9a84c; }
+.bill-item-date { font-size: 13px; color: rgba(255,255,255,0.45); }
+.bill-item-amount {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
+  text-align: right;
+}
+.discount-amount { color: #f87171; }
+
+/* Totals */
+.bill-totals {
+  border-top: 1px solid rgba(255,255,255,0.07);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.bill-total-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13.5px;
+  color: rgba(255,255,255,0.55);
+}
+.bill-total-due {
+  display: flex;
+  justify-content: space-between;
+  font-size: 20px;
+  font-weight: 700;
+  color: white;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  margin-top: 4px;
+  font-family: var(--font-display);
+}
+
+/* Complete button */
+.bill-action { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.06); }
+.btn-complete-checkout {
+  width: 100%;
+  padding: 15px;
+  background: #0d1b2a;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 300ms;
+}
+.btn-complete-checkout:hover {
+  background: #1a3154;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}
+
+/* Success */
+.bill-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  text-align: center;
+  animation: fadeIn 0.5s ease;
+}
+.success-circle {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: rgba(74,222,128,0.08);
+  border: 2px solid rgba(74,222,128,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  animation: pulse-gold 2s infinite;
+}
+.success-h2 {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 10px;
+}
+.success-p { font-size: 15px; color: rgba(255,255,255,0.55); }
+.success-amount {
+  margin-top: 20px;
+  padding: 14px 32px;
+  background: rgba(201,168,76,0.1);
+  border: 1px solid rgba(201,168,76,0.3);
+  border-radius: 8px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #c9a84c;
+  font-family: var(--font-display);
+}

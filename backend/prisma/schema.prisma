@@ -1,0 +1,146 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  full_name     String
+  email         String    @unique
+  phone         String?
+  password_hash String
+  role               Role      @default(GUEST)
+  
+  // Profile Additions
+  dob                DateTime?
+  address            String?
+  dietary_prefs      String?
+  pillow_type        String?
+  room_location_pref String?
+  payment_method_pref String?
+  membership_tier    String    @default("Member")
+  membership_points  Int       @default(0)
+
+  // Password Reset
+  resetToken         String?
+  resetTokenExpiry   DateTime?
+
+  bookings           Booking[]
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+enum Role {
+  GUEST
+  RECEPTIONIST
+  ADMIN
+}
+
+model RoomType {
+  id           String   @id @default(uuid())
+  name         String
+  description  String?
+  base_price   Float
+  max_adults   Int      @default(2)
+  max_children Int      @default(0)
+  
+  // Frontend fields
+  badge        String?
+  badgeClass   String?
+  area         String?
+  beds         String?
+  capacity     String?
+  view         String?
+  tags         String[]
+  tagIcons     String[]
+  images       String[]
+  amenities    String[]
+  reviewCount  Int      @default(0)
+  serviceFee   Float    @default(0)
+  tax          Float    @default(0)
+
+  rooms        Room[]
+  bookings     Booking[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Room {
+  id           String     @id @default(uuid())
+  room_number  String     @unique
+  room_type_id String
+  roomType     RoomType   @relation(fields: [room_type_id], references: [id])
+  status       RoomStatus @default(AVAILABLE)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+enum RoomStatus {
+  AVAILABLE
+  OCCUPIED
+  MAINTENANCE
+  CLEANING
+}
+
+model Booking {
+  id             String        @id @default(uuid())
+  booking_code   String        @unique
+  guest_id       String
+  guest          User          @relation(fields: [guest_id], references: [id])
+  room_type_id   String
+  roomType       RoomType      @relation(fields: [room_type_id], references: [id])
+  check_in       DateTime
+  check_out      DateTime
+  total_amount   Float
+  special_request String?
+  status         BookingStatus @default(PENDING)
+  payments       Payment[]
+  upsells        Upsell[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CHECKED_IN
+  CHECKED_OUT
+  CANCELLED
+}
+
+model Payment {
+  id               String        @id @default(uuid())
+  booking_id       String
+  booking          Booking       @relation(fields: [booking_id], references: [id])
+  amount           Float
+  payment_method   PaymentMethod
+  status           PaymentStatus @default(SUCCESS)
+  transaction_date DateTime      @default(now())
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  BANK_TRANSFER
+  PAY_AT_DESK
+}
+
+enum PaymentStatus {
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+model Upsell {
+  id           String  @id @default(uuid())
+  booking_id   String
+  booking      Booking @relation(fields: [booking_id], references: [id])
+  service_name String
+  price        Float
+}
