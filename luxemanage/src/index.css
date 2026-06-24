@@ -74,6 +74,12 @@ a  { text-decoration: none; color: inherit; }
 button { cursor: pointer; border: none; background: none; font-family: inherit; }
 input, textarea, select { font-family: inherit; }
 
+/* FIX SELECT BACKGROUND ISSUES ON WINDOWS */
+select option {
+  background-color: var(--color-navy-mid);
+  color: var(--color-white);
+}
+
 /* ========== UTILITIES ========== */
 .sr-only {
   position: absolute; width: 1px; height: 1px;

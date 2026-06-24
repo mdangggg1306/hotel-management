@@ -22,6 +22,8 @@ export default function LoginPage() {
     if (result.success) {
       if (result.user.role === 'ADMIN') {
         navigate('/dashboard')
+      } else if (result.user.role === 'RECEPTIONIST') {
+        navigate('/reception')
       } else {
         navigate('/portal')
       }
@@ -80,6 +82,14 @@ export default function LoginPage() {
         {/* Right Panel */}
         <div className="login-right slide-in-right">
           <div className="login-form-container">
+            {/* Back to home */}
+            <Link to="/" className="login-back-home">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+              Trang chủ
+            </Link>
+
             <h1 className="login-title">Chào mừng trở lại</h1>
             <p className="login-subtitle">Vui lòng nhập thông tin xác thực để truy cập hệ thống.</p>
 

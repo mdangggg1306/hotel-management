@@ -1,0 +1,194 @@
+.rrp-page {
+  padding: 32px 36px;
+  min-height: 100vh;
+  background: #080f1a;
+}
+
+/* ── Header ── */
+.rrp-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 24px;
+}
+.rrp-title { font-size: 22px; font-weight: 700; color: #f0f4ff; margin: 0 0 4px; }
+.rrp-subtitle { font-size: 13px; color: #64748b; margin: 0; }
+.rrp-btn-refresh {
+  display: flex; align-items: center; gap: 7px;
+  padding: 0 16px; height: 38px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px; color: #94a3b8; font-size: 13px;
+  cursor: pointer; transition: all 0.2s;
+}
+.rrp-btn-refresh:hover { background: rgba(255,255,255,0.1); color: #f0f4ff; }
+.rrp-spin { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Stats Bar ── */
+.rrp-stats {
+  display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; align-items: center;
+}
+.rrp-stat-pill {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 30px;
+  cursor: pointer; transition: all 0.2s;
+}
+.rrp-stat-pill:hover { border-color: var(--pill-color, rgba(255,255,255,0.2)); }
+.rrp-stat-pill--active { background: rgba(var(--pill-color, 255,255,255), 0.1); border-color: var(--pill-color); }
+.rrp-stat-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.rrp-stat-label { font-size: 12px; color: #94a3b8; }
+.rrp-stat-count {
+  font-size: 14px; font-weight: 700; color: #f0f4ff;
+  background: rgba(255,255,255,0.08); border-radius: 12px;
+  padding: 1px 8px;
+}
+.rrp-clear-filter {
+  padding: 8px 14px; background: none;
+  border: 1px dashed rgba(255,255,255,0.15);
+  border-radius: 30px; color: #64748b; font-size: 12px;
+  cursor: pointer; transition: all 0.2s;
+}
+.rrp-clear-filter:hover { color: #f0f4ff; border-color: rgba(255,255,255,0.3); }
+
+/* ── Floor Section ── */
+.rrp-floor-section { margin-bottom: 32px; }
+.rrp-floor-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 14px;
+}
+.rrp-floor-label {
+  font-size: 13px; font-weight: 700; color: #c9a84c;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.rrp-floor-count { font-size: 12px; color: #475569; }
+.rrp-floor-header::after {
+  content: ''; flex: 1; height: 1px;
+  background: rgba(255,255,255,0.06);
+}
+
+/* ── Room Grid ── */
+.rrp-room-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+/* ── Room Card ── */
+.rrp-room-card {
+  background: var(--room-bg, rgba(255,255,255,0.03));
+  border: 1px solid var(--room-border, rgba(255,255,255,0.08));
+  border-radius: 14px;
+  padding: 14px;
+  position: relative;
+  transition: all 0.2s;
+  cursor: default;
+}
+.rrp-room-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.rrp-room-card--loading { opacity: 0.6; pointer-events: none; }
+
+.rrp-room-num {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 6px;
+}
+.rrp-room-num > span:first-child {
+  font-size: 20px; font-weight: 800; color: #f0f4ff; font-family: monospace;
+}
+.rrp-floor {
+  font-size: 10px; font-weight: 600; color: #475569;
+  background: rgba(255,255,255,0.06); border-radius: 6px; padding: 2px 5px;
+}
+.rrp-room-type { font-size: 11px; color: #94a3b8; margin-bottom: 2px; }
+.rrp-room-price { font-size: 11px; color: #64748b; margin-bottom: 10px; }
+
+.rrp-status-badge {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.rrp-guest-tag {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 10px; color: #94a3b8;
+  background: rgba(255,255,255,0.05);
+  border-radius: 6px; padding: 3px 7px;
+  margin-bottom: 8px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.rrp-card-actions {
+  display: flex; flex-direction: column; gap: 5px;
+  margin-top: 8px;
+}
+.rrp-action-btn {
+  width: 100%; padding: 6px 8px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  color: #e2e8f0; font-size: 11px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s; text-align: left;
+}
+.rrp-action-btn:hover { background: rgba(255,255,255,0.14); }
+
+.rrp-card-spinner {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(8,15,26,0.5);
+  border-radius: 14px;
+}
+.rrp-card-spinner::after {
+  content: '';
+  width: 20px; height: 20px;
+  border: 2px solid rgba(201,168,76,0.3);
+  border-top-color: #c9a84c;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Status colors */
+.rrp-available { color: #34d399; }
+.rrp-occupied  { color: #f87171; }
+.rrp-cleaning  { color: #fbbf24; }
+.rrp-maintenance { color: #94a3b8; }
+
+/* ── Loading / Empty ── */
+.rrp-loading {
+  display: flex; align-items: center; justify-content: center;
+  gap: 12px; padding: 80px; color: #64748b; font-size: 14px;
+}
+.rrp-spinner {
+  width: 24px; height: 24px;
+  border: 2px solid rgba(201,168,76,0.2);
+  border-top-color: #c9a84c;
+  border-radius: 50%; animation: spin 0.8s linear infinite;
+}
+.rrp-empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 80px; color: #475569; gap: 10px;
+}
+.rrp-empty p { margin: 0; }
+
+/* ── Legend ── */
+.rrp-legend {
+  margin-top: 36px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+.rrp-legend-title {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 700; color: #475569;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  margin-bottom: 10px;
+}
+.rrp-legend-items { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+.rrp-legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #94a3b8; }
+.rrp-legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.rrp-legend-note { font-size: 11px; color: #475569; margin: 0; line-height: 1.5; }

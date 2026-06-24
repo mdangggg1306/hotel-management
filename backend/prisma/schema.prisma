@@ -27,12 +27,15 @@ model User {
   payment_method_pref String?
   membership_tier    String    @default("Member")
   membership_points  Int       @default(0)
+  tier_points        Int       @default(0)
+  point_transactions PointTransaction[]
 
   // Password Reset
   resetToken         String?
   resetTokenExpiry   DateTime?
 
   bookings           Booking[]
+  notifications      Notification[]
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 }
@@ -78,6 +81,8 @@ model Room {
   room_type_id String
   roomType     RoomType   @relation(fields: [room_type_id], references: [id])
   status       RoomStatus @default(AVAILABLE)
+  floor        Int?
+  bookings     Booking[]
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 }
@@ -96,6 +101,9 @@ model Booking {
   guest          User          @relation(fields: [guest_id], references: [id])
   room_type_id   String
   roomType       RoomType      @relation(fields: [room_type_id], references: [id])
+  // Specific room assigned at check-in
+  room_id        String?
+  room           Room?         @relation(fields: [room_id], references: [id])
   check_in       DateTime
   check_out      DateTime
   total_amount   Float
@@ -103,6 +111,7 @@ model Booking {
   status         BookingStatus @default(PENDING)
   payments       Payment[]
   upsells        Upsell[]
+  serviceRequests ServiceRequest[]
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 }
@@ -143,4 +152,65 @@ model Upsell {
   booking      Booking @relation(fields: [booking_id], references: [id])
   service_name String
   price        Float
+}
+
+// ─── Service Requests (Lễ Tân) ────────────────────────────────────────────────
+model ServiceRequest {
+  id          String               @id @default(uuid())
+  booking_id  String
+  booking     Booking              @relation(fields: [booking_id], references: [id])
+  category    ServiceCategory
+  title       String
+  description String?
+  status      ServiceRequestStatus @default(PENDING)
+  priority    ServicePriority      @default(NORMAL)
+  notes       String?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  completedAt DateTime?
+}
+
+enum ServiceCategory {
+  FOOD_BEVERAGE   // Ẩm thực
+  SPA             // Spa
+  HOUSEKEEPING    // Buồng phòng
+  TECHNICAL       // Kỹ thuật
+  TRANSPORT       // Đón/tiễn
+  OTHER
+}
+
+enum ServiceRequestStatus {
+  PENDING         // Mới
+  IN_PROGRESS     // Đang xử lý
+  COMPLETED       // Hoàn thành
+  CANCELLED
+}
+
+enum ServicePriority {
+  URGENT
+  HIGH
+  NORMAL
+  LOW
+}
+
+model PointTransaction {
+  id          String    @id @default(uuid())
+  user_id     String
+  user        User      @relation(fields: [user_id], references: [id])
+  amount      Int
+  type        String    // "EARN_BOOKING", "REDEEM_PAYMENT", "EXPIRED", "MANUAL"
+  description String?
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime?
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  user_id   String
+  user      User     @relation(fields: [user_id], references: [id])
+  type      String
+  title     String
+  message   String
+  is_read   Boolean  @default(false)
+  createdAt DateTime @default(now())
 }

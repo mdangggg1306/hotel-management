@@ -260,3 +260,26 @@
   .login-features { display: none; }
   .login-right { padding: var(--space-8) var(--space-6); }
 }
+
+/* Back to home button */
+.login-back-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 24px;
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s, transform 0.2s;
+}
+.login-back-home:hover {
+  color: #1a1a2e;
+  transform: translateX(-3px);
+}
+.login-back-home svg {
+  transition: transform 0.2s;
+}
+.login-back-home:hover svg {
+  transform: translateX(-2px);
+}

@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { Banknote, CalendarDays, Clock, RotateCcw, Download, Search, CreditCard, Landmark, Wallet } from 'lucide-react'
 import Layout from '../components/Layout/Layout'
 import './BillingPage.css'
 import './UserPortalPage.css'
@@ -7,15 +8,15 @@ const TOKEN = () => localStorage.getItem('luxemanage_token')
 const BASE = 'http://localhost:3000'
 
 const METHOD_LABEL = {
-  CREDIT_CARD: '💳 Thẻ tín dụng',
-  BANK_TRANSFER: '🏦 Chuyển khoản',
-  PAY_AT_DESK: '💵 Tại quầy'
+  CREDIT_CARD:   <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><CreditCard size={13} /> Thẻ tín dụng</span>,
+  BANK_TRANSFER: <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><Landmark size={13} /> Chuyển khoản</span>,
+  PAY_AT_DESK:   <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><Wallet size={13} /> Tại quầy</span>
 }
 
 const STATUS_LABEL = {
-  SUCCESS: { label: 'Thành công', cls: 'badge-green' },
-  FAILED: { label: 'Thất bại', cls: 'badge-red' },
-  REFUNDED: { label: 'Hoàn tiền', cls: 'badge-yellow' }
+  SUCCESS:  { label: 'Thành công', cls: 'badge-green' },
+  FAILED:   { label: 'Thất bại',   cls: 'badge-red' },
+  REFUNDED: { label: 'Hoàn tiền',  cls: 'badge-yellow' }
 }
 
 function StatCard({ label, value, sub, icon }) {
@@ -33,10 +34,28 @@ function StatCard({ label, value, sub, icon }) {
   )
 }
 
-function PaymentDetailModal({ payment, onClose }) {
+function PaymentDetailModal({ payment, onClose, onRefund }) {
   if (!payment) return null
   const b = payment.booking
   const nights = Math.max(0, Math.round((new Date(b.check_out) - new Date(b.check_in)) / 86400000))
+  const fmt = (n) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n)
+  const [refunding, setRefunding] = useState(false)
+
+  const handleRefund = async () => {
+    if (!confirm(`Xác nhận hoàn tiền ${fmt(payment.amount)} cho ${b.guest.full_name}?\nBooking sẽ bị hủy sau khi hoàn tiền.`)) return
+    setRefunding(true)
+    try {
+      const res = await fetch(`${BASE}/api/admin/payments/${payment.id}/refund`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN()}` }
+      })
+      const data = await res.json()
+      if (!res.ok) { alert(data.error || 'Hoàn tiền thất bại'); return }
+      alert('Hoàn tiền thành công!')
+      onRefund?.(); onClose()
+    } catch { alert('Lỗi kết nối server') }
+    finally { setRefunding(false) }
+  }
 
   return (
     <div className="ub-modal-overlay" onClick={onClose}>
@@ -54,7 +73,7 @@ function PaymentDetailModal({ payment, onClose }) {
             <div className="ub-info-grid">
               <div><label>Họ tên:</label><span>{b.guest.full_name}</span></div>
               <div><label>Email:</label><span>{b.guest.email}</span></div>
-              <div><label>Mã đặt phòng:</label><span>{b.booking_code}</span></div>
+              <div><label>Mã đặt phòng:</label><span style={{ fontWeight: 700, color: '#c9a84c' }}>{b.booking_code}</span></div>
               <div><label>Loại phòng:</label><span>{b.roomType.name}</span></div>
               <div><label>Nhận phòng:</label><span>{new Date(b.check_in).toLocaleDateString('vi-VN')}</span></div>
               <div><label>Trả phòng:</label><span>{new Date(b.check_out).toLocaleDateString('vi-VN')} ({nights} đêm)</span></div>
@@ -63,25 +82,35 @@ function PaymentDetailModal({ payment, onClose }) {
           <div className="ub-modal-section">
             <h3>Chi tiết thanh toán</h3>
             <div className="ub-price-breakdown">
-              <div className="pb-row"><span>Tiền phòng</span><span>${(b.roomType?.base_price * nights || 0).toLocaleString()}.00</span></div>
+              <div className="pb-row"><span>Tiền phòng</span><span>{fmt((b.roomType?.base_price || 0) * nights)}</span></div>
               {b.upsells?.length > 0 && (
                 <>
                   <div className="pb-divider" />
                   <div className="pb-row-title">Dịch vụ bổ sung:</div>
                   {b.upsells.map(u => (
-                    <div key={u.id} className="pb-row sub"><span>• {u.service_name}</span><span>${u.price.toLocaleString()}.00</span></div>
+                    <div key={u.id} className="pb-row sub"><span>• {u.service_name}</span><span>{fmt(u.price)}</span></div>
                   ))}
                 </>
               )}
               <div className="pb-divider" />
-              <div className="pb-row total"><span>Tổng thanh toán</span><span>${payment.amount.toLocaleString()}.00</span></div>
-              <div className="pb-payment-method">
-                Phương thức: <strong>{METHOD_LABEL[payment.payment_method]}</strong>
-              </div>
-              <div className="pb-payment-method">
-                Ngày giao dịch: <strong>{new Date(payment.transaction_date).toLocaleString('vi-VN')}</strong>
-              </div>
+              <div className="pb-row total"><span>Tổng thanh toán</span><span style={{ color: payment.status === 'REFUNDED' ? '#ef4444' : '#059669', fontWeight: 700 }}>{fmt(payment.amount)}</span></div>
+              <div className="pb-payment-method">Phương thức: <strong>{METHOD_LABEL[payment.payment_method]}</strong></div>
+              <div className="pb-payment-method">Ngày giao dịch: <strong>{new Date(payment.transaction_date).toLocaleString('vi-VN')}</strong></div>
             </div>
+          </div>
+
+          {/* Actions */}
+          <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
+            {payment.status === 'SUCCESS' && (
+              <button onClick={handleRefund} disabled={refunding}
+                style={{ background: '#f59e0b', color: 'white', border: 'none', padding: '9px 18px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '13px', opacity: refunding ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                {refunding ? 'Đang xử lý...' : <><RotateCcw size={13} /> Hoàn Tiền</>}
+              </button>
+            )}
+            <button onClick={onClose}
+              style={{ background: 'none', border: '1px solid #e5e7eb', padding: '9px 18px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', color: '#6b7280' }}>
+              Đóng
+            </button>
           </div>
         </div>
       </div>
@@ -89,35 +118,75 @@ function PaymentDetailModal({ payment, onClose }) {
   )
 }
 
+const PAGE_SIZE = 20
+
 export default function BillingPage() {
   const [payments, setPayments] = useState([])
-  const [stats, setStats] = useState({ totalRevenue: 0, todayRevenue: 0, pendingPayments: 0, activeBookings: 0 })
+  const [total, setTotal] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [stats, setStats] = useState({ totalRevenue: 0, todayRevenue: 0, pendingPayments: 0, activeBookings: 0, totalRefunded: 0, byMethod: [] })
   const [loading, setLoading] = useState(true)
   const [selectedPayment, setSelectedPayment] = useState(null)
   const [search, setSearch] = useState('')
+  const [searchInput, setSearchInput] = useState('')
+  const [filterMethod, setFilterMethod] = useState('all')
+  const [filterStatus, setFilterStatus] = useState('all')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
 
-  useEffect(() => {
+  const fetchPayments = useCallback(() => {
+    setLoading(true)
     const headers = { 'Authorization': `Bearer ${TOKEN()}` }
+    const params = new URLSearchParams()
+    if (search) params.append('search', search)
+    if (filterMethod !== 'all') params.append('payment_method', filterMethod)
+    if (filterStatus !== 'all') params.append('status', filterStatus)
+    if (dateFrom) params.append('date_from', dateFrom)
+    if (dateTo) params.append('date_to', dateTo)
+    params.append('page', String(currentPage))
+    params.append('limit', String(PAGE_SIZE))
+
     Promise.all([
-      fetch('http://localhost:3000/api/admin/billing', { headers }).then(r => r.json()),
-      fetch('http://localhost:3000/api/admin/billing/stats', { headers }).then(r => r.json())
+      fetch(`${BASE}/api/admin/billing?${params}`, { headers }).then(r => r.json()),
+      fetch(`${BASE}/api/admin/billing/stats`, { headers }).then(r => r.json())
     ]).then(([p, s]) => {
-      if (!p.error) setPayments(p)
+      if (p.data) {
+        setPayments(p.data)
+        setTotal(p.total || 0)
+        setTotalPages(p.totalPages || 1)
+      }
       if (!s.error) setStats(s)
     }).catch(console.error).finally(() => setLoading(false))
-  }, [])
+  }, [search, filterMethod, filterStatus, dateFrom, dateTo, currentPage])
+
+  useEffect(() => { fetchPayments() }, [fetchPayments])
+  useEffect(() => { setCurrentPage(1) }, [search, filterMethod, filterStatus, dateFrom, dateTo])
 
   const fmt = (n) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n)
 
-  const filtered = payments.filter(p => {
-    if (!search) return true
-    const q = search.toLowerCase()
-    return (
-      p.booking?.guest?.full_name?.toLowerCase().includes(q) ||
-      p.booking?.booking_code?.toLowerCase().includes(q) ||
-      p.booking?.roomType?.name?.toLowerCase().includes(q)
-    )
-  })
+  const handleSearch = (e) => { e.preventDefault(); setSearch(searchInput) }
+
+  const handleExport = async () => {
+    const params = new URLSearchParams()
+    if (dateFrom) params.append('date_from', dateFrom)
+    if (dateTo) params.append('date_to', dateTo)
+    const res = await fetch(`${BASE}/api/admin/export/billing?${params}`, {
+      headers: { 'Authorization': `Bearer ${TOKEN()}` }
+    })
+    if (!res.ok) { alert('Xuất thất bại'); return }
+    const blob = await res.blob()
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = `billing-${Date.now()}.csv`
+    a.click()
+  }
+
+  const clearFilters = () => {
+    setSearch(''); setSearchInput(''); setFilterMethod('all')
+    setFilterStatus('all'); setDateFrom(''); setDateTo('')
+  }
+  const hasFilters = search || filterMethod !== 'all' || filterStatus !== 'all' || dateFrom || dateTo
 
   return (
     <Layout>
@@ -130,11 +199,9 @@ export default function BillingPage() {
               <p className="page-subtitle">Tổng hợp giao dịch và doanh thu toàn hệ thống LUXE RESERVE.</p>
             </div>
             <div className="bill-header-actions">
-              <button className="btn-outline-light">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-                </svg>
-                Xuất Báo Cáo
+              <button className="btn-outline-light" onClick={handleExport} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Download size={13} strokeWidth={2} />
+                Xuất CSV
               </button>
             </div>
           </div>
@@ -143,58 +210,95 @@ export default function BillingPage() {
         <div className="page-body">
           {/* Stats */}
           <div className="dash-stats">
-            <StatCard
-              label="Tổng Doanh Thu"
-              value={fmt(stats.totalRevenue)}
-              sub="Tất cả thời gian"
-              icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>}
-            />
-            <StatCard
-              label="Doanh Thu Hôm Nay"
-              value={fmt(stats.todayRevenue)}
-              sub={new Date().toLocaleDateString('vi-VN')}
-              icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>}
-            />
-            <StatCard
-              label="Đang Chờ Thanh Toán"
-              value={stats.pendingPayments}
-              sub="Booking PENDING"
-              icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>}
-            />
-            <StatCard
-              label="Booking Đang Hoạt Động"
-              value={stats.activeBookings}
-              sub="Confirmed + Check-in"
-              icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>}
-            />
+            <StatCard label="Tổng Doanh Thu" value={fmt(stats.totalRevenue)} sub="Tất cả thời gian"
+              icon={<Banknote size={16} strokeWidth={2} />} />
+            <StatCard label="Doanh Thu Hôm Nay" value={fmt(stats.todayRevenue)} sub={new Date().toLocaleDateString('vi-VN')}
+              icon={<CalendarDays size={16} strokeWidth={2} />} />
+            <StatCard label="Đang Chờ Thanh Toán" value={stats.pendingPayments} sub="Booking PENDING"
+              icon={<Clock size={16} strokeWidth={2} />} />
+            <StatCard label="Đã Hoàn Tiền" value={fmt(stats.totalRefunded || 0)} sub="Tổng refund"
+              icon={<RotateCcw size={16} strokeWidth={2} />} />
           </div>
 
-          {/* Payments Table */}
-          <div className="content-card">
-            <div className="content-card-header" style={{ alignItems: 'center' }}>
-              <span className="content-card-title">Lịch sử giao dịch ({filtered.length})</span>
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                <div style={{ position: 'relative' }}>
-                  <svg style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', opacity: 0.4 }} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                  </svg>
-                  <input
-                    type="text"
-                    placeholder="Tìm khách, mã đặt phòng..."
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                    style={{
-                      padding: '7px 12px 7px 32px', border: '1px solid #e5e7eb',
-                      borderRadius: '8px', fontSize: '13px', outline: 'none', width: '240px'
-                    }}
-                  />
+          {/* Method breakdown */}
+          {stats.byMethod?.length > 0 && (
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
+              {stats.byMethod.map(m => (
+                <div key={m.payment_method} style={{
+                  background: 'white', border: '1px solid #e5e7eb', borderRadius: '8px',
+                  padding: '10px 16px', display: 'flex', gap: '12px', alignItems: 'center'
+                }}>
+                  <span style={{ fontSize: '13px', color: '#6b7280' }}>{METHOD_LABEL[m.payment_method] || m.payment_method}</span>
+                  <span style={{ fontSize: '14px', fontWeight: 700, color: '#059669' }}>{fmt(m._sum.amount || 0)}</span>
+                  <span style={{ fontSize: '11px', color: '#9ca3af' }}>{m._count.id} GD</span>
                 </div>
+              ))}
+            </div>
+          )}
+
+          {/* Filter Bar + Table */}
+          <div className="content-card">
+            {/* Filters */}
+            <div style={{ padding: '14px 20px', borderBottom: '1px solid #f3f4f6' }}>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+                <form onSubmit={handleSearch} style={{ display: 'flex', gap: '8px', flex: 1, minWidth: '200px' }}>
+                  <div style={{ position: 'relative', flex: 1 }}>
+                    <Search size={13} strokeWidth={2} opacity={0.4} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)' }} />
+                    <input type="text" placeholder="Tìm khách, mã đặt phòng..."
+                      value={searchInput} onChange={e => setSearchInput(e.target.value)}
+                      className="admin-input"
+                      style={{ width: '100%', padding: '7px 12px 7px 32px', borderRadius: '8px', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }} />
+                  </div>
+                  <button type="submit" style={{ background: '#0d1b2a', color: 'white', border: 'none', padding: '7px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+                    Tìm
+                  </button>
+                </form>
+
+                {/* Method filter */}
+                <select value={filterMethod} onChange={e => setFilterMethod(e.target.value)}
+                  className="admin-select"
+                  style={{ padding: '7px 10px', borderRadius: '8px', fontSize: '13px', outline: 'none', cursor: 'pointer' }}>
+                  <option value="all">Tất cả phương thức</option>
+                  <option value="CREDIT_CARD">💳 Thẻ tín dụng</option>
+                  <option value="BANK_TRANSFER">🏦 Chuyển khoản</option>
+                  <option value="PAY_AT_DESK">💵 Tại quầy</option>
+                </select>
+
+                {/* Status filter */}
+                <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
+                  className="admin-select"
+                  style={{ padding: '7px 10px', borderRadius: '8px', fontSize: '13px', outline: 'none', cursor: 'pointer' }}>
+                  <option value="all">Tất cả trạng thái</option>
+                  <option value="SUCCESS">Thành công</option>
+                  <option value="FAILED">Thất bại</option>
+                  <option value="REFUNDED">Hoàn tiền</option>
+                </select>
+
+                {/* Date range */}
+                <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
+                  className="admin-input"
+                  style={{ padding: '7px 10px', borderRadius: '8px', fontSize: '13px', outline: 'none' }} />
+                <span style={{ fontSize: '12px', color: '#9ca3af' }}>→</span>
+                <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
+                  className="admin-input"
+                  style={{ padding: '7px 10px', borderRadius: '8px', fontSize: '13px', outline: 'none' }} />
+
+                {hasFilters && (
+                  <button onClick={clearFilters}
+                    style={{ padding: '7px 12px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '12px', cursor: 'pointer', color: '#6b7280', background: 'none', whiteSpace: 'nowrap' }}>
+                    Xóa lọc
+                  </button>
+                )}
               </div>
+            </div>
+
+            <div className="content-card-header" style={{ padding: '10px 20px' }}>
+              <span className="content-card-title">Lịch sử giao dịch ({total})</span>
             </div>
 
             {loading ? (
               <div style={{ padding: '60px', textAlign: 'center', color: '#9ca3af' }}>Đang tải dữ liệu...</div>
-            ) : filtered.length === 0 ? (
+            ) : payments.length === 0 ? (
               <div style={{ padding: '60px', textAlign: 'center', color: '#9ca3af' }}>Không có giao dịch nào.</div>
             ) : (
               <table className="data-table">
@@ -210,11 +314,11 @@ export default function BillingPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map(p => (
+                  {payments.map(p => (
                     <tr key={p.id}>
                       <td>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <div className="avatar-initials" style={{ background: '#c9a84c', color: 'white', fontSize: '11px' }}>
+                          <div className="avatar-initials" style={{ background: p.status === 'REFUNDED' ? '#9ca3af' : '#c9a84c', color: 'white', fontSize: '11px' }}>
                             {(p.booking?.guest?.full_name || '??').split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase()}
                           </div>
                           <div>
@@ -227,20 +331,17 @@ export default function BillingPage() {
                       <td style={{ fontSize: '13px' }}>{METHOD_LABEL[p.payment_method]}</td>
                       <td style={{ fontSize: '12px', color: '#6b7280' }}>{new Date(p.transaction_date).toLocaleDateString('vi-VN')}</td>
                       <td><span className={`badge ${STATUS_LABEL[p.status]?.cls || 'badge-gray'}`}>{STATUS_LABEL[p.status]?.label}</span></td>
-                      <td style={{ textAlign: 'right', fontWeight: 700, color: '#059669', fontSize: '14px' }}>{fmt(p.amount)}</td>
+                      <td style={{ textAlign: 'right', fontWeight: 700, color: p.status === 'REFUNDED' ? '#ef4444' : '#059669', fontSize: '14px' }}>
+                        {p.status === 'REFUNDED' && <span style={{ fontSize: '11px', marginRight: '4px', opacity: 0.7 }}>-</span>}
+                        {fmt(p.amount)}
+                      </td>
                       <td>
-                        <button
-                          onClick={() => setSelectedPayment(p)}
-                          style={{
-                            background: 'none', border: '1px solid #e5e7eb',
-                            borderRadius: '6px', padding: '4px 10px',
-                            fontSize: '12px', cursor: 'pointer', color: '#374151',
-                            transition: '0.15s'
-                          }}
+                        <button onClick={() => setSelectedPayment(p)}
+                          style={{ background: 'none', border: '1px solid #e5e7eb', borderRadius: '6px', padding: '4px 12px', fontSize: '12px', cursor: 'pointer', color: '#374151', transition: '0.15s' }}
                           onMouseEnter={e => e.currentTarget.style.background = '#f9fafb'}
-                          onMouseLeave={e => e.currentTarget.style.background = 'none'}
-                        >
+                          onMouseLeave={e => e.currentTarget.style.background = 'none'}>
                           Xem
+                          {p.status === 'SUCCESS' && <span style={{ marginLeft: '4px', fontSize: '10px', color: '#f59e0b' }}>💸</span>}
                         </button>
                       </td>
                     </tr>
@@ -248,12 +349,45 @@ export default function BillingPage() {
                 </tbody>
               </table>
             )}
+
+            {/* Pagination */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 20px', borderTop: '1px solid #f3f4f6' }}>
+              <span style={{ fontSize: '13px', color: '#6b7280' }}>
+                Hiển thị {payments.length} / {total} giao dịch
+              </span>
+              {totalPages > 1 && (
+                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                  <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}
+                    style={{ padding: '5px 10px', border: '1px solid #e5e7eb', borderRadius: '6px', background: 'white', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', opacity: currentPage === 1 ? 0.4 : 1, fontSize: '13px' }}>
+                    ←
+                  </button>
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    const page = currentPage <= 3 ? i + 1 : currentPage - 2 + i
+                    if (page < 1 || page > totalPages) return null
+                    return (
+                      <button key={page} onClick={() => setCurrentPage(page)}
+                        style={{ padding: '5px 10px', border: '1px solid #e5e7eb', borderRadius: '6px', background: page === currentPage ? '#0d1b2a' : 'white', color: page === currentPage ? 'white' : '#374151', cursor: 'pointer', fontSize: '13px', fontWeight: page === currentPage ? 700 : 400 }}>
+                        {page}
+                      </button>
+                    )
+                  })}
+                  <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}
+                    style={{ padding: '5px 10px', border: '1px solid #e5e7eb', borderRadius: '6px', background: 'white', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', opacity: currentPage === totalPages ? 0.4 : 1, fontSize: '13px' }}>
+                    →
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
       {selectedPayment && (
-        <PaymentDetailModal payment={selectedPayment} onClose={() => setSelectedPayment(null)} />
+        <PaymentDetailModal
+          payment={selectedPayment}
+          onClose={() => setSelectedPayment(null)}
+          onRefund={fetchPayments}
+        />
       )}
     </Layout>
   )

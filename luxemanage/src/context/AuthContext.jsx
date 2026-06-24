@@ -81,12 +81,13 @@ export function AuthProvider({ children }) {
   }
 
   // Helper checks
-  const isAdmin = user?.role === 'ADMIN'
-  const isUser  = user?.role === 'GUEST'
-  const isLoggedIn = !!user
+  const isAdmin        = user?.role === 'ADMIN'
+  const isUser         = user?.role === 'GUEST'
+  const isReceptionist = user?.role === 'RECEPTIONIST'
+  const isLoggedIn     = !!user
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, isAdmin, isUser, isLoggedIn }}>
+    <AuthContext.Provider value={{ user, login, register, logout, isAdmin, isUser, isReceptionist, isLoggedIn }}>
       {children}
     </AuthContext.Provider>
   )

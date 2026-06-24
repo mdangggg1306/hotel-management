@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { Building, ChefHat, Tv, Briefcase, Bed, Wifi, Coffee, Bath, Trees, Sun, Compass, Plane, Utensils, Flower2, Wine } from 'lucide-react'
+import { showToast } from '../components/Toast'
 import './UserPortalPage.css'
 
 /* ──────────────────────────────────────────────────────── */
@@ -24,11 +26,27 @@ function Stars({ count = 5 }) {
 }
 
 const UPSELLS = [
-  { id: 'airport', icon: '✈️', title: 'Đưa đón sân bay cao cấp', desc: 'Dịch vụ tài xế riêng với dòng xe sang trọng.', price: 120 },
-  { id: 'dining', icon: '🍽️', title: 'Tín dụng ẩm thực tại phòng', desc: 'Tín dụng $150 cho trải nghiệm ẩm thực thượng hạng.', price: 85 },
-  { id: 'spa', icon: '💆', title: 'Gói thư giãn Spa', desc: 'Massage phục hồi 60 phút cho một khách.', price: 160 },
-  { id: 'champagne', icon: '🥂', title: 'Sâm-panh chào mừng', desc: 'Một chai Dom Pérignon ướp lạnh chờ sẵn trong phòng.', price: 390 },
+  { id: 'airport', icon: <Plane size={24} />, title: 'Đưa đón sân bay cao cấp', desc: 'Dịch vụ tài xế riêng với dòng xe sang trọng.', price: 3000000 },
+  { id: 'dining', icon: <Utensils size={24} />, title: 'Tín dụng ẩm thực tại phòng', desc: 'Tín dụng 3.750.000đ cho trải nghiệm ẩm thực thượng hạng.', price: 2125000 },
+  { id: 'spa', icon: <Flower2 size={24} />, title: 'Gói thư giãn Spa', desc: 'Massage phục hồi 60 phút cho một khách.', price: 4000000 },
+  { id: 'champagne', icon: <Wine size={24} />, title: 'Sâm-panh chào mừng', desc: 'Một chai Dom Pérignon ướp lạnh chờ sẵn trong phòng.', price: 9750000 },
 ]
+
+const TagIcon = ({ tag }) => {
+  if (!tag) return <Compass size={14} />;
+  const t = tag.toLowerCase();
+  if (t.includes('city')) return <Building size={14} />;
+  if (t.includes('kitchen')) return <ChefHat size={14} />;
+  if (t.includes('tv') || t.includes('smart')) return <Tv size={14} />;
+  if (t.includes('work') || t.includes('desk')) return <Briefcase size={14} />;
+  if (t.includes('bed')) return <Bed size={14} />;
+  if (t.includes('wifi')) return <Wifi size={14} />;
+  if (t.includes('coffee') || t.includes('tea')) return <Coffee size={14} />;
+  if (t.includes('bath') || t.includes('tub')) return <Bath size={14} />;
+  if (t.includes('ocean') || t.includes('sea') || t.includes('water')) return <Sun size={14} />;
+  if (t.includes('garden') || t.includes('park') || t.includes('view')) return <Trees size={14} />;
+  return <Compass size={14} />;
+};
 
 function BookingDetailsModal({ booking, onClose }) {
   if (!booking) return null;
@@ -74,7 +92,7 @@ function BookingDetailsModal({ booking, onClose }) {
             <div className="ub-price-breakdown">
               <div className="pb-row">
                 <span>Giá phòng ({nights} đêm)</span>
-                <span>${(booking.roomType?.base_price * nights).toLocaleString()}.00</span>
+                <span>{(booking.roomType?.base_price * nights).toLocaleString('vi-VN').replace(/,/g, ".")}đ</span>
               </div>
               {hasUpsells && (
                 <>
@@ -83,7 +101,7 @@ function BookingDetailsModal({ booking, onClose }) {
                   {booking.upsells.map(u => (
                     <div key={u.id} className="pb-row sub">
                       <span>• {u.service_name}</span>
-                      <span>${u.price.toLocaleString()}.00</span>
+                      <span>{u.price.toLocaleString('vi-VN').replace(/,/g, ".")}đ</span>
                     </div>
                   ))}
                 </>
@@ -91,7 +109,7 @@ function BookingDetailsModal({ booking, onClose }) {
               <div className="pb-divider"></div>
               <div className="pb-row total">
                 <span>Tổng Cộng</span>
-                <span>${booking.total_amount.toLocaleString()}.00</span>
+                <span>{booking.total_amount.toLocaleString('vi-VN').replace(/,/g, ".")}đ</span>
               </div>
               {booking.payments && booking.payments.length > 0 && (
                 <div className="pb-payment-method">
@@ -115,6 +133,7 @@ function UserBookingsList() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const [activeTab, setActiveTab] = useState('UPCOMING');
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -136,13 +155,36 @@ function UserBookingsList() {
     fetchBookings();
   }, []);
 
-  if (loading) return <div className="ub-loading">Đang tải lịch sử đặt phòng...</div>;
-  if (bookings.length === 0) return <div className="ub-empty">Bạn chưa có đặt phòng nào.</div>;
+  const getFilteredBookings = () => {
+    const now = new Date();
+    return bookings.filter(b => {
+      const isCancelled = b.status === 'CANCELLED';
+      const checkoutDate = new Date(b.check_out);
+      if (activeTab === 'CANCELLED') return isCancelled;
+      if (activeTab === 'PAST') return !isCancelled && checkoutDate < now;
+      if (activeTab === 'UPCOMING') return !isCancelled && checkoutDate >= now;
+      return true;
+    });
+  };
+
+  const filteredBookings = getFilteredBookings();
 
   return (
-    <div className="ub-list">
-      {bookings.map(b => (
-        <div key={b.id} className="ub-card">
+    <>
+      <div className="ub-tabs">
+        <button className={activeTab === 'UPCOMING' ? 'active' : ''} onClick={() => setActiveTab('UPCOMING')}>SẮP TỚI</button>
+        <button className={activeTab === 'PAST' ? 'active' : ''} onClick={() => setActiveTab('PAST')}>ĐÃ QUA</button>
+        <button className={activeTab === 'CANCELLED' ? 'active' : ''} onClick={() => setActiveTab('CANCELLED')}>ĐÃ HỦY</button>
+      </div>
+
+      {loading ? (
+        <div className="ub-loading">Đang tải lịch sử đặt phòng...</div>
+      ) : filteredBookings.length === 0 ? (
+        <div className="ub-empty">Bạn chưa có đặt phòng nào trong mục này.</div>
+      ) : (
+        <div className="ub-list">
+          {filteredBookings.map(b => (
+            <div key={b.id} className="ub-card">
           <img src={b.roomType?.images?.[0] || 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600&q=80'} alt="Room" className="ub-room-img" />
           <div className="ub-details">
             <div className="ub-header-top">
@@ -161,7 +203,7 @@ function UserBookingsList() {
               </div>
               <div>
                 <label>TỔNG CỘNG</label>
-                <p className="ub-price">${b.total_amount.toLocaleString()}</p>
+                <p className="ub-price">{b.total_amount.toLocaleString('vi-VN').replace(/,/g, ".")}đ</p>
               </div>
             </div>
             <div className="ub-actions">
@@ -174,9 +216,11 @@ function UserBookingsList() {
             </div>
           </div>
         </div>
-      ))}
-      <BookingDetailsModal booking={selectedBooking} onClose={() => setSelectedBooking(null)} />
-    </div>
+          ))}
+          <BookingDetailsModal booking={selectedBooking} onClose={() => setSelectedBooking(null)} />
+        </div>
+      )}
+    </>
   );
 }
 
@@ -185,7 +229,8 @@ function UserProfile() {
   const [activeTab, setActiveTab] = useState('personal');
   const [profile, setProfile] = useState({
     full_name: '', phone: '', email: '', dob: '', address: '',
-    dietary_prefs: '', pillow_type: '', room_location_pref: '', payment_method_pref: 'card'
+    dietary_prefs: '', pillow_type: '', room_location_pref: '', payment_method_pref: 'card',
+    membership_tier: 'Member', membership_points: 0, tier_points: 0
   });
   const [passwords, setPasswords] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
   const [saving, setSaving] = useState(false);
@@ -205,7 +250,10 @@ function UserProfile() {
           dietary_prefs: u.dietary_prefs || '',
           pillow_type: u.pillow_type || '',
           room_location_pref: u.room_location_pref || '',
-          payment_method_pref: u.payment_method_pref || 'card'
+          payment_method_pref: u.payment_method_pref || 'card',
+          membership_tier: u.membership_tier || 'Member',
+          membership_points: u.membership_points || 0,
+          tier_points: u.tier_points || 0
         });
       }
     };
@@ -224,8 +272,8 @@ function UserProfile() {
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(profile)
       });
-      if (res.ok) alert('Cập nhật hồ sơ thành công!');
-      else alert('Cập nhật thất bại!');
+      if (res.ok) showToast('Cập nhật hồ sơ thành công!');
+      else showToast('Cập nhật thất bại!', 'error');
     } catch (e) {
       console.error(e);
     } finally {
@@ -235,11 +283,11 @@ function UserProfile() {
 
   const handleChangePassword = async () => {
     if (passwords.newPassword !== passwords.confirmPassword) {
-      alert('Mật khẩu xác nhận không khớp!');
+      showToast('Mật khẩu xác nhận không khớp!', 'error');
       return;
     }
     if (passwords.newPassword.length < 6) {
-      alert('Mật khẩu mới phải có ít nhất 6 ký tự!');
+      showToast('Mật khẩu mới phải có ít nhất 6 ký tự!', 'error');
       return;
     }
     setSaving(true);
@@ -252,10 +300,10 @@ function UserProfile() {
       });
       const data = await res.json();
       if (res.ok) {
-        alert('Đổi mật khẩu thành công!');
+        showToast('Đổi mật khẩu thành công!');
         setPasswords({ oldPassword: '', newPassword: '', confirmPassword: '' });
       } else {
-        alert(data.error || 'Lỗi đổi mật khẩu');
+        showToast(data.error || 'Lỗi đổi mật khẩu', 'error');
       }
     } catch (e) {
       console.error(e);
@@ -296,13 +344,16 @@ function UserProfile() {
         </div>
         <div className="up-membership-card">
           <p className="tier-label">HẠNG THÀNH VIÊN</p>
-          <h3>Gold Elite</h3>
+          <h3 style={{ textTransform: 'capitalize' }}>{profile.membership_tier}</h3>
           <div className="tier-points">
-            <span>12,450 điểm</span>
+            <span>{profile.membership_points.toLocaleString('vi-VN')} điểm khả dụng</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="8" r="7" />
               <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
             </svg>
+          </div>
+          <div style={{ marginTop: '12px', fontSize: '12px', color: '#fcd34d' }}>
+            <span>Điểm xét hạng: {profile.tier_points.toLocaleString('vi-VN')}</span>
           </div>
         </div>
       </div>
@@ -468,17 +519,88 @@ export default function UserPortalPage() {
   }, [checkin, checkout])
 
   // Fetch user preferences on mount to set default payment method
+  const [userPoints, setUserPoints] = useState(0)
+  const [usePoints, setUsePoints] = useState(false)
+  const [payMethod, setPayMethod] = useState('card')
+
+  const [darkMode, setDarkMode] = useState(localStorage.getItem('luxemanage_theme') === 'dark');
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  useEffect(() => {
+    if (darkMode) {
+      document.body.classList.add('dark');
+      localStorage.setItem('luxemanage_theme', 'dark');
+    } else {
+      document.body.classList.remove('dark');
+      localStorage.setItem('luxemanage_theme', 'light');
+    }
+  }, [darkMode]);
+
+  useEffect(() => {
+    if (user) {
+      fetch('/api/user/notifications', {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('luxemanage_token')}` }
+      })
+      .then(res => res.json())
+      .then(data => setNotifications(data))
+      .catch(console.error);
+    }
+  }, [user]);
+
+  const markNotificationAsRead = async (id) => {
+    try {
+      await fetch(`/api/user/notifications/${id}/read`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('luxemanage_token')}` }
+      });
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
+    } catch (e) { console.error(e); }
+  };
+
+
   useEffect(() => {
     if (user) {
       const token = localStorage.getItem('luxemanage_token');
       fetch('/api/auth/me', { headers: { 'Authorization': `Bearer ${token}` } })
         .then(res => res.json())
         .then(data => {
-          if (data && data.user && data.user.payment_method_pref) {
-            setPayMethod(data.user.payment_method_pref);
+          if (data && data.user) {
+            if (data.user.payment_method_pref) setPayMethod(data.user.payment_method_pref);
+            setUserPoints(data.user.membership_points || 0);
           }
         })
         .catch(console.error);
+
+      // Listen for Real-time Notifications
+      const evtSource = new EventSource(`/api/user/notifications/stream?token=${token}`);
+      evtSource.onmessage = (event) => {
+        try {
+          const evtData = JSON.parse(event.data);
+          if (evtData.type === 'checkout_success') {
+            // Hiển thị toast
+            showToast(evtData.message, 'success');
+            // Cập nhật điểm ngay lập tức
+            if (evtData.earnedPoints > 0) {
+              setUserPoints(prev => prev + evtData.earnedPoints);
+            }
+            // Thêm vào danh sách notification
+            const newNotif = {
+              id: `live-${Date.now()}`,
+              type: 'checkout_success',
+              title: evtData.title,
+              message: evtData.message,
+              is_read: false,
+              createdAt: evtData.timestamp || new Date().toISOString(),
+              earnedPoints: evtData.earnedPoints,
+              newTier: evtData.newTier
+            };
+            setNotifications(prev => [newNotif, ...prev]);
+          }
+        } catch(e) {}
+      };
+
+      return () => evtSource.close();
     }
   }, [user]);
 
@@ -491,7 +613,6 @@ export default function UserPortalPage() {
   const [step, setStep] = useState('browse') // browse | detail | confirm | payment | success
   const [selectedRoom, setSelectedRoom] = useState(null)
   const [activePhoto, setActivePhoto] = useState(0)
-  const [payMethod, setPayMethod] = useState('card')
   const [selectedUpsells, setSelectedUpsells] = useState([])
   const [bookingRef, setBookingRef] = useState('')
   const [showUserMenu, setShowUserMenu] = useState(false)
@@ -537,11 +658,11 @@ export default function UserPortalPage() {
 
   const openConfirm = (room) => {
     if (!checkin || !checkout) {
-      alert('Vui lòng chọn ngày nhận và trả phòng!')
+      showToast('Vui lòng chọn ngày nhận và trả phòng!', 'error')
       return
     }
     if (nights <= 0) {
-      alert('Ngày trả phòng phải sau ngày nhận phòng!')
+      showToast('Ngày trả phòng phải sau ngày nhận phòng!', 'error')
       return
     }
     setSelectedRoom(room)
@@ -580,7 +701,8 @@ export default function UserPortalPage() {
           check_out: checkout,
           total_amount: grandTotal,
           special_request: '',
-          upsells: upsellsData
+          upsells: upsellsData,
+          redeem_points: pointsRedeemed
         })
       });
       if (!bookingRes.ok) throw new Error('Không thể tạo booking');
@@ -605,7 +727,7 @@ export default function UserPortalPage() {
       setStep('success');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
-      alert('Lỗi đặt phòng: ' + err.message);
+      showToast('Lỗi đặt phòng: ' + err.message, 'error');
     } finally {
       setIsProcessingPayment(false);
     }
@@ -630,10 +752,15 @@ export default function UserPortalPage() {
   const upsellTotal = UPSELLS.filter(u => selectedUpsells.includes(u.id)).reduce((s, u) => s + u.price, 0)
   const taxAmount = selectedRoom ? Math.round(roomTotal * 0.12) : 0
   const resortFee = selectedRoom ? selectedRoom.serviceFee : 0
-  const grandTotal = roomTotal + taxAmount + resortFee + upsellTotal
+  const subTotal = roomTotal + taxAmount + resortFee + upsellTotal
+
+  const maxDiscountPoints = Math.min(userPoints, Math.floor(subTotal / 1000))
+  const pointsDiscountVND = usePoints ? maxDiscountPoints * 1000 : 0
+  const pointsRedeemed = usePoints ? maxDiscountPoints : 0
+  const grandTotal = subTotal - pointsDiscountVND
 
   /* ── NAV ── */
-  const NavBar = ({ activeTab }) => (
+  const renderNavBar = (activeTab) => (
     <header className="up-nav">
       <div className="up-nav-inner">
         <div className="up-brand" onClick={resetAll}>
@@ -651,14 +778,87 @@ export default function UserPortalPage() {
           ))}
         </nav>
         <div className="up-nav-right">
-          <button className="up-nav-search">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-            Tìm kiếm
+
+          <button className="up-nav-search" onClick={() => setDarkMode(!darkMode)} title="Giao diện Sáng/Tối">
+            {darkMode ? '🌙' : '☀️'}
           </button>
+          
+          <div className="up-avatar-wrap" style={{ position: 'relative' }}>
+            <div className="up-avatar up-bell-btn" onClick={() => { setShowNotifications(!showNotifications); setShowUserMenu(false); }}>
+              🔔
+              {notifications.filter(n => !n.is_read).length > 0 && (
+                <span className="up-notif-badge">
+                  {notifications.filter(n => !n.is_read).length}
+                </span>
+              )}
+            </div>
+            {showNotifications && (
+              <div className="up-notif-panel">
+                <div className="up-notif-header">
+                  <span>Thông báo</span>
+                  {notifications.some(n => !n.is_read) && (
+                    <button
+                      className="up-notif-readall"
+                      onClick={async () => {
+                        await fetch('/api/user/notifications/read-all', {
+                          method: 'PUT',
+                          headers: { Authorization: `Bearer ${localStorage.getItem('luxemanage_token')}` }
+                        });
+                        setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+                      }}
+                    >
+                      Đọc tất cả
+                    </button>
+                  )}
+                </div>
+                <div className="up-notif-list">
+                  {notifications.length === 0 ? (
+                    <div className="up-notif-empty">
+                      <span style={{ fontSize: 28 }}>🔔</span>
+                      <p>Chưa có thông báo nào</p>
+                    </div>
+                  ) : notifications.map(n => {
+                    const isCheckout = n.type === 'checkout_success';
+                    const timeAgo = (() => {
+                      const diff = Date.now() - new Date(n.createdAt).getTime();
+                      const mins = Math.floor(diff / 60000);
+                      if (mins < 1) return 'Vừa xong';
+                      if (mins < 60) return `${mins} phút trước`;
+                      const hrs = Math.floor(mins / 60);
+                      if (hrs < 24) return `${hrs} giờ trước`;
+                      return new Date(n.createdAt).toLocaleDateString('vi-VN');
+                    })();
+                    return (
+                      <div
+                        key={n.id}
+                        className={`up-notif-item ${!n.is_read ? 'up-notif-item--unread' : ''}`}
+                        onClick={() => { if (!n.is_read) markNotificationAsRead(n.id); }}
+                      >
+                        <div className="up-notif-icon">
+                          {isCheckout ? '🎉' : '📢'}
+                        </div>
+                        <div className="up-notif-content">
+                          <div className="up-notif-title">{n.title}</div>
+                          <div className="up-notif-msg">{n.message}</div>
+                          {n.earnedPoints > 0 && (
+                            <div className="up-notif-points">
+                              ✨ +{n.earnedPoints} điểm thưởng
+                              {n.newTier && ` · Hạng: ${n.newTier}`}
+                            </div>
+                          )}
+                          <div className="up-notif-time">{timeAgo}</div>
+                        </div>
+                        {!n.is_read && <div className="up-notif-dot" />}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="up-avatar-wrap">
-            <div className="up-avatar" onClick={() => setShowUserMenu(!showUserMenu)} title={user?.name || user?.full_name}>
+            <div className="up-avatar" onClick={() => { setShowUserMenu(!showUserMenu); setShowNotifications(false); }} title={user?.name || user?.full_name}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
               </svg>
@@ -692,7 +892,7 @@ export default function UserPortalPage() {
   )
 
   /* ── STEP INDICATOR ── */
-  const StepIndicator = ({ current }) => {
+  const renderStepIndicator = (current) => {
     const steps = [
       { n: 1, label: 'Thông tin' },
       { n: 2, label: 'Thanh toán' },
@@ -721,8 +921,8 @@ export default function UserPortalPage() {
   /*  PROFILE STEP                                          */
   /* ══════════════════════════════════════════════════════ */
   if (step === 'profile') return (
-    <div className="up-page" style={{ backgroundColor: '#f9fafb', minHeight: '100vh' }}>
-      <NavBar />
+    <div className="up-page up-page-bg">
+      {renderNavBar()}
       <UserProfile />
     </div>
   )
@@ -731,17 +931,12 @@ export default function UserPortalPage() {
   /*  BOOKINGS STEP                                         */
   /* ══════════════════════════════════════════════════════ */
   if (step === 'bookings') return (
-    <div className="up-page" style={{ backgroundColor: '#f9fafb', minHeight: '100vh' }}>
-      <NavBar activeTab="Đặt phòng của tôi" />
+    <div className="up-page up-page-bg">
+      {renderNavBar("Đặt phòng của tôi")}
       <div className="up-bookings-container">
         <div className="ub-hero-section">
           <h1 className="ub-title">Lịch sử đặt phòng</h1>
           <p className="ub-subtitle">Quản lý và xem lại tất cả các chuyến lưu trú tuyệt vời của bạn tại LuxeManage.</p>
-        </div>
-        <div className="ub-tabs">
-          <button className="active">SẮP TỚI</button>
-          <button>ĐÃ QUA</button>
-          <button>ĐÃ HỦY</button>
         </div>
         <UserBookingsList />
       </div>
@@ -753,7 +948,7 @@ export default function UserPortalPage() {
   /* ══════════════════════════════════════════════════════ */
   if (step === 'browse') return (
     <div className="up-page">
-      <NavBar />
+      {renderNavBar()}
 
       {/* ROOMS LIST */}
       <main className="up-rooms-main">
@@ -871,8 +1066,8 @@ export default function UserPortalPage() {
 
                 <div className="up-room-card-tags">
                   {room.tags.slice(0, 4).map((tag, i) => (
-                    <span key={tag} className="up-room-card-tag">
-                      <span className="tag-icon">{room.tagIcons[i]}</span> {tag}
+                    <span key={tag} className="up-room-card-tag" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span className="tag-icon" style={{ display: 'flex' }}><TagIcon tag={tag} /></span> {tag}
                     </span>
                   ))}
                 </div>
@@ -932,7 +1127,7 @@ export default function UserPortalPage() {
     const r = selectedRoom
     return (
       <div className="up-page">
-        <NavBar />
+        {renderNavBar()}
 
         {/* Breadcrumb */}
         <div className="up-breadcrumb">
@@ -1045,7 +1240,7 @@ export default function UserPortalPage() {
             <div className="detail-book-card">
               <div className="dbc-starts">Chỉ từ</div>
               <div className="dbc-price">
-                <span className="dbc-price-val">${r.price.toLocaleString()}</span>
+                <span className="dbc-price-val">{r.price.toLocaleString('vi-VN').replace(/,/g, ".")}đ</span>
                 <span className="dbc-price-per"> / đêm</span>
               </div>
 
@@ -1085,20 +1280,20 @@ export default function UserPortalPage() {
               {nights > 0 && (
                 <div className="dbc-breakdown">
                   <div className="dbc-row">
-                    <span>${r.price.toLocaleString()} × {nights} đêm</span>
-                    <span>${roomTotal.toLocaleString()}</span>
+                    <span>{r.price.toLocaleString('vi-VN')}đ × {nights} đêm</span>
+                    <span>{roomTotal.toLocaleString('vi-VN').replace(/,/g, ".")}đ</span>
                   </div>
                   <div className="dbc-row">
                     <span>Phí dịch vụ cao cấp</span>
-                    <span>${r.serviceFee}</span>
+                    <span>{(r.serviceFee).toLocaleString('vi-VN')}đ</span>
                   </div>
                   <div className="dbc-row">
                     <span>Thuế lưu trú</span>
-                    <span>${r.tax}</span>
+                    <span>{(r.tax).toLocaleString('vi-VN')}đ</span>
                   </div>
                   <div className="dbc-total-row">
                     <span>Tổng cộng</span>
-                    <strong>${grandTotal.toLocaleString()}</strong>
+                    <strong>{grandTotal.toLocaleString('vi-VN').replace(/,/g, ".")}đ</strong>
                   </div>
                 </div>
               )}
@@ -1146,10 +1341,10 @@ export default function UserPortalPage() {
     const r = selectedRoom
     return (
       <div className="up-page">
-        <NavBar activeTab="My Bookings" />
+        {renderNavBar("My Bookings")}
 
         <div className="up-checkout-wrap">
-          <StepIndicator current={1} />
+          {renderStepIndicator(1)}
 
           <div className="up-confirm-layout">
             <div className="up-confirm-left">
@@ -1200,7 +1395,7 @@ export default function UserPortalPage() {
                       <div className="upsell-body">
                         <div className="upsell-title">{u.title}</div>
                         <div className="upsell-desc">{u.desc}</div>
-                        <div className="upsell-price">+${u.price}.00</div>
+                        <div className="upsell-price">+{u.price.toLocaleString('vi-VN')}đ</div>
                       </div>
                     </label>
                   ))}
@@ -1248,29 +1443,35 @@ export default function UserPortalPage() {
                 <div className="cs-rows">
                   <div className="cs-row">
                     <span>Giá phòng ({nights} đêm)</span>
-                    <span>${roomTotal.toLocaleString()}.00</span>
+                    <span>{roomTotal.toLocaleString('vi-VN').replace(/,/g, ".")}đ</span>
                   </div>
                   <div className="cs-row">
                     <span>Thuế &amp; Phí dịch vụ (12%)</span>
-                    <span>${taxAmount.toLocaleString()}.00</span>
+                    <span>{taxAmount.toLocaleString('vi-VN').replace(/,/g, ".")}đ</span>
                   </div>
                   <div className="cs-row">
                     <span>Phí dịch vụ cao cấp</span>
-                    <span>${resortFee}.00</span>
+                    <span>{(resortFee).toLocaleString('vi-VN')}đ</span>
                   </div>
                   {selectedUpsells.length > 0 && UPSELLS.filter(u => selectedUpsells.includes(u.id)).map(u => (
                     <div key={u.id} className="cs-row upsell-row">
                       <span>+ {u.title}</span>
-                      <span>${u.price}.00</span>
+                      <span>{(u.price).toLocaleString('vi-VN')}đ</span>
                     </div>
                   ))}
+                  {pointsDiscountVND > 0 && (
+                    <div className="cs-row" style={{ color: '#059669' }}>
+                      <span>Giảm giá điểm ({pointsRedeemed} điểm)</span>
+                      <span>-{pointsDiscountVND.toLocaleString('vi-VN')}đ</span>
+                    </div>
+                  )}
                 </div>
                 <div className="cs-divider" />
                 <div className="cs-total-row">
                   <span>Tổng cộng</span>
-                  <strong>${grandTotal.toLocaleString()}.00</strong>
+                  <strong>{grandTotal.toLocaleString('vi-VN').replace(/,/g, ".")}đ</strong>
                 </div>
-                <div className="cs-currency-note">Thanh toán bằng USD</div>
+                <div className="cs-currency-note">Thanh toán bằng VNĐ</div>
 
                 <div className="cs-cancel-policy">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2">
@@ -1299,10 +1500,10 @@ export default function UserPortalPage() {
     const r = selectedRoom
     return (
       <div className="up-page">
-        <NavBar activeTab="My Bookings" />
+        {renderNavBar("My Bookings")}
 
         <div className="up-checkout-wrap">
-          <StepIndicator current={2} />
+          {renderStepIndicator(2)}
 
           <div className="up-confirm-layout">
             <div className="up-confirm-left">
@@ -1353,6 +1554,18 @@ export default function UserPortalPage() {
                     </div>
                   </div>
                 )}
+
+                {userPoints >= 23 && (
+                  <div className="confirm-section-card" style={{ marginTop: '24px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={usePoints} onChange={(e) => setUsePoints(e.target.checked)} style={{ width: '20px', height: '20px', accentColor: '#000' }} />
+                      <div>
+                        <div style={{ fontWeight: 600 }}>Dùng tối đa {maxDiscountPoints} điểm thưởng để giảm giá</div>
+                        <div style={{ fontSize: '13px', color: '#6b7280' }}>Tiết kiệm {(maxDiscountPoints * 1000).toLocaleString('vi-VN')}đ (1 điểm = 1.000đ)</div>
+                      </div>
+                    </label>
+                  </div>
+                )}
               </div>
 
               <div className="confirm-actions">
@@ -1367,7 +1580,7 @@ export default function UserPortalPage() {
                     </>
                   ) : (
                     <>
-                      Xác Nhận & Thanh Toán ${grandTotal.toLocaleString()}
+                      Xác Nhận & Thanh Toán {grandTotal.toLocaleString('vi-VN')}đ
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                         <polyline points="9 18 15 12 9 6" />
                       </svg>
@@ -1402,16 +1615,16 @@ export default function UserPortalPage() {
                 </div>
                 <div className="cs-divider" />
                 <div className="cs-rows">
-                  <div className="cs-row"><span>Giá phòng ({nights} đêm)</span><span>${roomTotal.toLocaleString()}.00</span></div>
-                  <div className="cs-row"><span>Thuế &amp; Phí dịch vụ (12%)</span><span>${taxAmount}.00</span></div>
-                  <div className="cs-row"><span>Phí dịch vụ cao cấp</span><span>${resortFee}.00</span></div>
+                  <div className="cs-row"><span>Giá phòng ({nights} đêm)</span><span>{roomTotal.toLocaleString('vi-VN').replace(/,/g, ".")}đ</span></div>
+                  <div className="cs-row"><span>Thuế &amp; Phí dịch vụ (12%)</span><span>{(taxAmount).toLocaleString('vi-VN')}đ</span></div>
+                  <div className="cs-row"><span>Phí dịch vụ cao cấp</span><span>{(resortFee).toLocaleString('vi-VN')}đ</span></div>
                   {selectedUpsells.length > 0 && UPSELLS.filter(u => selectedUpsells.includes(u.id)).map(u => (
-                    <div key={u.id} className="cs-row upsell-row"><span>+ {u.title}</span><span>${u.price}.00</span></div>
+                    <div key={u.id} className="cs-row upsell-row"><span>+ {u.title}</span><span>{(u.price).toLocaleString('vi-VN')}đ</span></div>
                   ))}
                 </div>
                 <div className="cs-divider" />
-                <div className="cs-total-row"><span>Tổng cộng</span><strong>${grandTotal.toLocaleString()}.00</strong></div>
-                <div className="cs-currency-note">Thanh toán bằng USD</div>
+                <div className="cs-total-row"><span>Tổng cộng</span><strong>{grandTotal.toLocaleString('vi-VN').replace(/,/g, ".")}đ</strong></div>
+                <div className="cs-currency-note">Thanh toán bằng VNĐ</div>
                 <div className="cs-secure-note">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
@@ -1435,7 +1648,7 @@ export default function UserPortalPage() {
     const cardLast = payMethod === 'card' ? '4242' : ''
     return (
       <div className="up-page">
-        <NavBar activeTab="My Bookings" />
+        {renderNavBar("My Bookings")}
         <div className="up-success-outer">
           {/* Top – thank you */}
           <div className="success-top-banner">
@@ -1548,12 +1761,12 @@ export default function UserPortalPage() {
                 {selectedUpsells.length > 0 && UPSELLS.filter(u => selectedUpsells.includes(u.id)).map(u => (
                   <div key={u.id} className="suc-pay-row">
                     <span>{u.title}</span>
-                    <span>{(u.price * 23000).toLocaleString('vi-VN')}đ</span>
+                    <span>{u.price.toLocaleString('vi-VN')}đ</span>
                   </div>
                 ))}
                 <div className="suc-pay-total">
                   <span>Tổng cộng</span>
-                  <strong>{(grandTotal * 23000).toLocaleString('vi-VN')}đ</strong>
+                  <strong>{grandTotal.toLocaleString('vi-VN')}đ</strong>
                 </div>
                 <div className="suc-pay-method">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2">

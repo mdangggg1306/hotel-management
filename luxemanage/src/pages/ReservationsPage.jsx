@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { Check, LogIn, LogOut, X, Plus, Download, Search } from 'lucide-react'
 import Layout from '../components/Layout/Layout'
 import './ReservationsPage.css'
 import './UserPortalPage.css'
@@ -7,20 +8,20 @@ const TOKEN = () => localStorage.getItem('luxemanage_token')
 const BASE = 'http://localhost:3000'
 
 const STATUS_LABELS = {
-  PENDING: { label: 'CHỜ XÁC NHẬN', cls: 'badge-gray' },
-  CONFIRMED: { label: 'ĐÃ XÁC NHẬN', cls: 'badge-blue' },
+  PENDING:    { label: 'CHỜ XÁC NHẬN', cls: 'badge-gray' },
+  CONFIRMED:  { label: 'ĐÃ XÁC NHẬN',  cls: 'badge-blue' },
   CHECKED_IN: { label: 'ĐANG LƯU TRÚ', cls: 'badge-green' },
-  CHECKED_OUT: { label: 'ĐÃ CHECK-OUT', cls: 'badge-gray' },
-  CANCELLED: { label: 'ĐÃ HỦY', cls: 'badge-yellow' }
+  CHECKED_OUT:{ label: 'ĐÃ CHECK-OUT', cls: 'badge-gray' },
+  CANCELLED:  { label: 'ĐÃ HỦY',       cls: 'badge-yellow' }
 }
 
 const TABS = [
   { key: 'all', label: 'Tất cả' },
-  { key: 'PENDING', label: 'Chờ xác nhận' },
-  { key: 'CONFIRMED', label: 'Đã xác nhận' },
-  { key: 'CHECKED_IN', label: 'Đang lưu trú' },
+  { key: 'PENDING',     label: 'Chờ xác nhận' },
+  { key: 'CONFIRMED',   label: 'Đã xác nhận' },
+  { key: 'CHECKED_IN',  label: 'Đang lưu trú' },
   { key: 'CHECKED_OUT', label: 'Đã check-out' },
-  { key: 'CANCELLED', label: 'Đã hủy' },
+  { key: 'CANCELLED',   label: 'Đã hủy' },
 ]
 
 function BookingDetailModal({ booking, onClose, onStatusUpdate }) {
@@ -74,43 +75,41 @@ function BookingDetailModal({ booking, onClose, onStatusUpdate }) {
           <div className="ub-modal-section">
             <h3>Thanh toán</h3>
             <div className="ub-price-breakdown">
-              <div className="pb-row"><span>Tiền phòng ({nights} đêm)</span><span>${(booking.roomType.base_price * nights).toLocaleString()}.00</span></div>
+              <div className="pb-row"><span>Tiền phòng ({nights} đêm)</span><span>{new Intl.NumberFormat('vi-VN',{style:'currency',currency:'VND'}).format(booking.roomType.base_price * nights)}</span></div>
               {booking.upsells?.length > 0 && (
                 <>
                   <div className="pb-divider" />
-                  {booking.upsells.map(u => <div key={u.id} className="pb-row sub"><span>• {u.service_name}</span><span>${u.price.toLocaleString()}.00</span></div>)}
+                  {booking.upsells.map(u => <div key={u.id} className="pb-row sub"><span>• {u.service_name}</span><span>{new Intl.NumberFormat('vi-VN',{style:'currency',currency:'VND'}).format(u.price)}</span></div>)}
                 </>
               )}
               <div className="pb-divider" />
-              <div className="pb-row total"><span>Tổng cộng</span><span>${booking.total_amount.toLocaleString()}.00</span></div>
+              <div className="pb-row total"><span>Tổng cộng</span><span style={{ color: '#059669', fontWeight: 700 }}>{new Intl.NumberFormat('vi-VN',{style:'currency',currency:'VND'}).format(booking.total_amount)}</span></div>
               {booking.payments?.length > 0 && (
-                <div className="pb-payment-method">
-                  Trạng thái: <strong style={{ color: '#059669' }}>✓ Đã thanh toán</strong>
-                </div>
+                <div className="pb-payment-method">Trạng thái: <strong style={{ color: '#059669' }}>✓ Đã thanh toán</strong></div>
               )}
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '16px' }}>
             {booking.status === 'PENDING' && (
-              <button onClick={() => updateStatus('CONFIRMED')} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '8px 18px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}>
-                ✅ Xác nhận
+              <button onClick={() => updateStatus('CONFIRMED')} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '8px 18px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Check size={13} /> Xác nhận
               </button>
             )}
             {booking.status === 'CONFIRMED' && (
-              <button onClick={() => updateStatus('CHECKED_IN')} style={{ background: '#10b981', color: 'white', border: 'none', padding: '8px 18px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}>
-                🏨 Check-in
+              <button onClick={() => updateStatus('CHECKED_IN')} style={{ background: '#10b981', color: 'white', border: 'none', padding: '8px 18px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <LogIn size={13} /> Check-in
               </button>
             )}
             {booking.status === 'CHECKED_IN' && (
-              <button onClick={() => updateStatus('CHECKED_OUT')} style={{ background: '#8b5cf6', color: 'white', border: 'none', padding: '8px 18px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}>
-                🚪 Check-out
+              <button onClick={() => updateStatus('CHECKED_OUT')} style={{ background: '#8b5cf6', color: 'white', border: 'none', padding: '8px 18px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <LogOut size={13} /> Check-out
               </button>
             )}
             {['PENDING','CONFIRMED'].includes(booking.status) && (
-              <button onClick={() => updateStatus('CANCELLED')} style={{ background: '#ef4444', color: 'white', border: 'none', padding: '8px 18px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}>
-                ❌ Hủy booking
+              <button onClick={() => updateStatus('CANCELLED')} style={{ background: '#ef4444', color: 'white', border: 'none', padding: '8px 18px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <X size={13} /> Hủy booking
               </button>
             )}
             <button onClick={onClose} style={{ background: 'none', border: '1px solid #e5e7eb', padding: '8px 18px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', color: '#6b7280' }}>
@@ -140,6 +139,9 @@ function CreateBookingModal({ roomTypes, onClose, onCreated }) {
     if (!form.guest_email || !form.room_type_id || !form.check_in || !form.check_out) {
       setError('Vui lòng điền đầy đủ thông tin bắt buộc.'); return
     }
+    if (new Date(form.check_out) <= new Date(form.check_in)) {
+      setError('Ngày trả phòng phải sau ngày nhận phòng.'); return
+    }
     setLoading(true); setError('')
     try {
       const res = await fetch(`${BASE}/api/admin/bookings`, {
@@ -153,6 +155,8 @@ function CreateBookingModal({ roomTypes, onClose, onCreated }) {
     } catch { setError('Lỗi kết nối server') }
     finally { setLoading(false) }
   }
+
+  const fmtCur = (n) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n)
 
   return (
     <div className="ub-modal-overlay" onClick={onClose}>
@@ -179,7 +183,7 @@ function CreateBookingModal({ roomTypes, onClose, onCreated }) {
               <select value={form.room_type_id} onChange={e => setForm({ ...form, room_type_id: e.target.value })}
                 style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', outline: 'none', background: 'white' }}>
                 <option value="">-- Chọn loại phòng --</option>
-                {roomTypes.map(r => <option key={r.id} value={r.id}>{r.name} (${r.base_price.toLocaleString()}/đêm)</option>)}
+                {roomTypes.map(r => <option key={r.id} value={r.id}>{r.name} ({fmtCur(r.base_price)}/đêm)</option>)}
               </select>
             </div>
             <div>
@@ -191,7 +195,7 @@ function CreateBookingModal({ roomTypes, onClose, onCreated }) {
             {calcTotal() > 0 && (
               <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '12px', display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: '14px', fontWeight: 600, color: '#065f46' }}>Tổng dự kiến:</span>
-                <span style={{ fontSize: '16px', fontWeight: 700, color: '#059669' }}>${calcTotal().toLocaleString()}.00</span>
+                <span style={{ fontSize: '16px', fontWeight: 700, color: '#059669' }}>{fmtCur(calcTotal())}</span>
               </div>
             )}
           </div>
@@ -208,12 +212,19 @@ function CreateBookingModal({ roomTypes, onClose, onCreated }) {
   )
 }
 
+const PAGE_SIZE = 15
+
 export default function ReservationsPage() {
   const [activeTab, setActiveTab] = useState('all')
   const [bookings, setBookings] = useState([])
+  const [total, setTotal] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
+  const [currentPage, setCurrentPage] = useState(1)
   const [roomTypes, setRoomTypes] = useState([])
   const [search, setSearch] = useState('')
   const [searchInput, setSearchInput] = useState('')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
   const [selectedBooking, setSelectedBooking] = useState(null)
   const [showCreate, setShowCreate] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -223,12 +234,25 @@ export default function ReservationsPage() {
     const params = new URLSearchParams()
     if (activeTab !== 'all') params.append('status', activeTab)
     if (search) params.append('search', search)
+    if (dateFrom) params.append('date_from', dateFrom)
+    if (dateTo) params.append('date_to', dateTo)
+    params.append('page', String(currentPage))
+    params.append('limit', String(PAGE_SIZE))
+
     fetch(`${BASE}/api/admin/bookings?${params}`, { headers: { 'Authorization': `Bearer ${TOKEN()}` } })
-      .then(r => r.json()).then(data => { if (!data.error) setBookings(data) })
+      .then(r => r.json())
+      .then(data => {
+        if (data.data) {
+          setBookings(data.data)
+          setTotal(data.total || 0)
+          setTotalPages(data.totalPages || 1)
+        }
+      })
       .catch(console.error).finally(() => setLoading(false))
-  }, [activeTab, search])
+  }, [activeTab, search, dateFrom, dateTo, currentPage])
 
   useEffect(() => { fetchBookings() }, [fetchBookings])
+  useEffect(() => { setCurrentPage(1) }, [activeTab, search, dateFrom, dateTo])
 
   useEffect(() => {
     fetch(`${BASE}/api/rooms/search`)
@@ -241,6 +265,22 @@ export default function ReservationsPage() {
     setSearch(searchInput)
   }
 
+  const handleExport = async () => {
+    const params = new URLSearchParams()
+    if (activeTab !== 'all') params.append('status', activeTab)
+    if (dateFrom) params.append('date_from', dateFrom)
+    if (dateTo) params.append('date_to', dateTo)
+    const res = await fetch(`${BASE}/api/admin/export/bookings?${params}`, {
+      headers: { 'Authorization': `Bearer ${TOKEN()}` }
+    })
+    if (!res.ok) { alert('Xuất thất bại'); return }
+    const blob = await res.blob()
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = `reservations-${Date.now()}.csv`
+    a.click()
+  }
+
   const getInitials = (name) => (name || '??').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
   const fmt = (n) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n)
 
@@ -251,21 +291,16 @@ export default function ReservationsPage() {
           <div className="res-header-row">
             <div>
               <h1 className="page-title">Quản Lý Đặt Phòng</h1>
-              <p className="page-subtitle">Giám sát và vận hành các lượt khách ra vào tại hệ thống LUXE RESERVE.</p>
+              <p className="page-subtitle">Giám sát và vận hành các lượt khách ra vào tại LUXE RESERVE.</p>
             </div>
             <div className="res-header-actions">
-              <button className="btn-dark" onClick={() => setShowCreate(true)}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-                </svg>
+              <button className="btn-dark" onClick={() => setShowCreate(true)} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Plus size={13} strokeWidth={2.5} />
                 Tạo Booking
               </button>
-              <button className="btn-outline-light">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                  <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-                </svg>
-                Xuất File
+              <button className="btn-outline-light" onClick={handleExport} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Download size={13} strokeWidth={2} />
+                Xuất CSV
               </button>
             </div>
           </div>
@@ -273,22 +308,34 @@ export default function ReservationsPage() {
 
         <div className="page-body">
           <div className="content-card">
-            {/* Search Bar */}
+            {/* Search + Date filter */}
             <div style={{ padding: '16px 20px', borderBottom: '1px solid #f3f4f6' }}>
-              <form onSubmit={handleSearch} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                <div style={{ position: 'relative', flex: 1 }}>
-                  <svg style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', opacity: 0.4 }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                  </svg>
+              <form onSubmit={handleSearch} style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <div style={{ position: 'relative', flex: 1, minWidth: '200px' }}>
+                  <Search size={14} strokeWidth={2} opacity={0.4} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
                   <input type="text" placeholder="Tìm theo tên khách, mã booking, email..."
                     value={searchInput} onChange={e => setSearchInput(e.target.value)}
-                    style={{ width: '100%', padding: '9px 12px 9px 36px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }} />
+                    className="admin-input"
+                    style={{ width: '100%', padding: '9px 12px 9px 36px', borderRadius: '8px', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }} />
                 </div>
+
+                {/* Date range filter */}
+                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                  <span style={{ fontSize: '12px', color: '#6b7280', whiteSpace: 'nowrap' }}>Từ:</span>
+                  <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
+                    className="admin-input"
+                    style={{ padding: '8px 10px', borderRadius: '8px', fontSize: '13px', outline: 'none' }} />
+                  <span style={{ fontSize: '12px', color: '#6b7280' }}>Đến:</span>
+                  <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
+                    className="admin-input"
+                    style={{ padding: '8px 10px', borderRadius: '8px', fontSize: '13px', outline: 'none' }} />
+                </div>
+
                 <button type="submit" style={{ background: '#0d1b2a', color: 'white', border: 'none', padding: '9px 20px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
                   Tìm kiếm
                 </button>
-                {search && (
-                  <button type="button" onClick={() => { setSearch(''); setSearchInput('') }}
+                {(search || dateFrom || dateTo) && (
+                  <button type="button" onClick={() => { setSearch(''); setSearchInput(''); setDateFrom(''); setDateTo('') }}
                     style={{ background: 'none', border: '1px solid #e5e7eb', padding: '9px 14px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer', color: '#6b7280' }}>
                     Xóa lọc
                   </button>
@@ -299,7 +346,8 @@ export default function ReservationsPage() {
             {/* Tabs */}
             <div className="res-tabs">
               {TABS.map(t => (
-                <button key={t.key} className={`res-tab ${activeTab === t.key ? 'active' : ''}`} onClick={() => setActiveTab(t.key)}>
+                <button key={t.key} className={`res-tab ${activeTab === t.key ? 'active' : ''}`}
+                  onClick={() => setActiveTab(t.key)}>
                   {t.label}
                 </button>
               ))}
@@ -321,7 +369,7 @@ export default function ReservationsPage() {
                 </thead>
                 <tbody>
                   {bookings.length === 0 ? (
-                    <tr><td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: '#9ca3af' }}>Không có booking nào.</td></tr>
+                    <tr><td colSpan={6} style={{ textAlign: 'center', padding: '40px', color: '#9ca3af' }}>Không có booking nào.</td></tr>
                   ) : bookings.map(r => {
                     const s = STATUS_LABELS[r.status] || { label: r.status, cls: 'badge-gray' }
                     return (
@@ -360,7 +408,10 @@ export default function ReservationsPage() {
                             )}
                             {['PENDING', 'CONFIRMED'].includes(r.status) && (
                               <button className="btn-checkout" style={{ background: '#ef4444', color: '#fff' }}
-                                onClick={() => fetch(`${BASE}/api/admin/bookings/${r.id}/status`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN()}` }, body: JSON.stringify({ status: 'CANCELLED' }) }).then(fetchBookings)}>
+                                onClick={() => {
+                                  if (confirm('Bạn chắc chắn muốn hủy booking này?'))
+                                    fetch(`${BASE}/api/admin/bookings/${r.id}/status`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN()}` }, body: JSON.stringify({ status: 'CANCELLED' }) }).then(fetchBookings)
+                                }}>
                                 Hủy
                               </button>
                             )}
@@ -373,8 +424,43 @@ export default function ReservationsPage() {
               </table>
             )}
 
-            <div className="res-pagination">
-              <span className="res-showing">Đang hiển thị {bookings.length} lượt đặt phòng</span>
+            {/* Pagination */}
+            <div className="res-pagination" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 20px' }}>
+              <span className="res-showing">
+                Hiển thị {bookings.length} / {total} booking
+              </span>
+              {totalPages > 1 && (
+                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                  <button
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    style={{ padding: '6px 12px', border: '1px solid #e5e7eb', borderRadius: '6px', background: 'white', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', opacity: currentPage === 1 ? 0.4 : 1, fontSize: '13px' }}>
+                    ← Trước
+                  </button>
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    const page = currentPage <= 3 ? i + 1 : currentPage - 2 + i
+                    if (page < 1 || page > totalPages) return null
+                    return (
+                      <button key={page}
+                        onClick={() => setCurrentPage(page)}
+                        style={{
+                          padding: '6px 10px', border: '1px solid #e5e7eb', borderRadius: '6px',
+                          background: page === currentPage ? '#0d1b2a' : 'white',
+                          color: page === currentPage ? 'white' : '#374151',
+                          cursor: 'pointer', fontSize: '13px', fontWeight: page === currentPage ? 700 : 400
+                        }}>
+                        {page}
+                      </button>
+                    )
+                  })}
+                  <button
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    style={{ padding: '6px 12px', border: '1px solid #e5e7eb', borderRadius: '6px', background: 'white', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', opacity: currentPage === totalPages ? 0.4 : 1, fontSize: '13px' }}>
+                    Sau →
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

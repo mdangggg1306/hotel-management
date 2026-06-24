@@ -81,6 +81,11 @@
   background: rgba(255,255,255,0.1);
 }
 
+.filter-select option {
+  background: #1e293b;
+  color: #fff;
+}
+
 .btn-reset-view {
   padding: 10px 24px;
   border-radius: 8px;

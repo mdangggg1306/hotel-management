@@ -466,3 +466,18 @@
   font-weight: 700;
   flex-shrink: 0;
 }
+
+/* Form Elements (Admin) */
+.admin-input, .admin-select {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #fff;
+}
+.admin-input:focus, .admin-select:focus {
+  border-color: rgba(201,168,76,0.5);
+  background: rgba(255,255,255,0.08);
+}
+.admin-select option {
+  background: #1e293b;
+  color: #fff;
+}

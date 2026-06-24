@@ -10,6 +10,9 @@
   flex-direction: column;
   font-family: 'Inter', system-ui, sans-serif;
 }
+.up-page-bg {
+  background-color: #f9fafb;
+}
 
 /* ---------- NAV ---------- */
 .up-nav {
@@ -106,6 +109,128 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* ── Notification Bell ── */
+.up-bell-btn {
+  position: relative;
+  font-size: 18px;
+}
+.up-notif-badge {
+  position: absolute;
+  top: -4px; right: -4px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px; font-weight: 700;
+  border-radius: 999px;
+  padding: 1px 5px;
+  min-width: 17px;
+  text-align: center;
+  line-height: 1.4;
+  animation: popIn 0.2s ease;
+}
+@keyframes popIn {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* ── Notification Panel ── */
+.up-notif-panel {
+  position: absolute;
+  top: 48px; right: 0;
+  width: 360px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+  border: 1px solid #e5e7eb;
+  z-index: 200;
+  overflow: hidden;
+  animation: slideDown 0.2s ease;
+}
+.up-notif-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+}
+.up-notif-readall {
+  background: none; border: none;
+  font-size: 12px; color: #c9a84c;
+  font-weight: 600; cursor: pointer;
+}
+.up-notif-readall:hover { text-decoration: underline; }
+.up-notif-list {
+  max-height: 360px;
+  overflow-y: auto;
+}
+.up-notif-empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 36px 16px;
+  color: #9ca3af; gap: 8px;
+}
+.up-notif-empty p { margin: 0; font-size: 13px; }
+
+.up-notif-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #f9fafb;
+  cursor: pointer;
+  transition: background 0.15s;
+  position: relative;
+}
+.up-notif-item:hover { background: #f9fafb; }
+.up-notif-item--unread { background: rgba(201,168,76,0.06); }
+.up-notif-item--unread:hover { background: rgba(201,168,76,0.12); }
+
+.up-notif-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.up-notif-content { flex: 1; min-width: 0; }
+.up-notif-title {
+  font-size: 13px; font-weight: 700;
+  color: #111827; margin-bottom: 3px;
+}
+.up-notif-msg {
+  font-size: 12px; color: #6b7280;
+  line-height: 1.5; margin-bottom: 5px;
+}
+.up-notif-points {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px; font-weight: 700;
+  color: #c9a84c;
+  background: rgba(201,168,76,0.1);
+  padding: 2px 8px; border-radius: 20px;
+  margin-bottom: 4px;
+}
+.up-notif-time {
+  font-size: 10px; color: #9ca3af;
+}
+.up-notif-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #c9a84c;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+/* Dark mode notification panel */
+.dark .up-notif-panel { background: #1a2435; border-color: #2d3748; }
+.dark .up-notif-header { color: #f0f4ff; border-color: #2d3748; }
+.dark .up-notif-item { border-color: rgba(255,255,255,0.05); }
+.dark .up-notif-item:hover { background: rgba(255,255,255,0.04); }
+.dark .up-notif-item--unread { background: rgba(201,168,76,0.08); }
+.dark .up-notif-title { color: #f0f4ff; }
+.dark .up-notif-msg { color: #94a3b8; }
+.dark .up-notif-empty { color: #475569; }
+
 .ud-header {
   padding: 8px 16px;
   display: flex;
@@ -136,15 +261,16 @@
 
 /* ---------- PROFILE ---------- */
 .up-profile-layout {
-  max-width: 1100px;
+  width: 100%;
+  max-width: 1280px; /* Tăng max-width để full màn hơn */
   margin: 100px auto 60px;
-  padding: 0 24px;
+  padding: 0 40px; /* Tăng padding */
   display: flex;
   align-items: flex-start;
-  gap: 30px;
+  gap: 40px; /* Tăng gap giữa sidebar và main content */
 }
 .up-sidebar {
-  width: 280px;
+  width: 300px; /* Tăng kích thước sidebar */
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -2150,3 +2276,28 @@
   gap: 12px;
   margin-top: 16px;
 }
+
+/* DARK MODE */
+.dark .up-page, .dark .up-page-bg { background: #0f172a; color: #f8fafc; }
+.dark .up-nav { background: #020617; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.dark .up-nav-search { background: rgba(255,255,255,0.1); color: #cbd5e1; }
+.dark .up-rooms-header-left h1, .dark .ub-title, .dark .up-profile-header h2, .dark .confirm-title, .dark .up-room-card-name, .dark .up-room-card-price, .dark .confirm-section-label, .dark .ud-header strong, .dark .ub-header-top h3, .dark .up-pref-card h4, .dark .ub-grid p, .dark .cs-row span, .dark .up-form-group input, .dark .pmo-label, .dark .up-settings-menu h3 { color: #f8fafc; }
+.dark .up-search-bar, .dark .up-room-card, .dark .up-profile-card, .dark .up-pref-card, .dark .ub-card, .dark .confirm-section-card, .dark .user-dropdown-menu, .dark .up-settings-menu { background: #1e293b; border-color: #334155; }
+.dark .up-search-dates input, .dark .up-search-dates select, .dark .up-sort-select { color: #f8fafc; }
+.dark .up-form-group input { background: #0f172a; border-color: #334155; color: #f8fafc; }
+.dark .up-form-group input[readOnly] { background: #1e293b; color: #cbd5e1; }
+.dark .up-form-group select { background: #0f172a; border-color: #334155; color: #f8fafc; }
+.dark .ud-item:hover, .dark .up-settings-menu li:hover { background: #334155; }
+.dark .ud-divider { background: #334155; }
+.dark .up-settings-menu li.active { background: #c9a84c; color: #fff; }
+.dark .up-settings-menu li { color: #94a3b8; border-color: #334155; }
+.dark .up-settings-menu { border-color: #334155; }
+.dark .up-settings-menu h3 { border-bottom-color: #334155; }
+.dark .btn-card-outline, .dark .ub-btn-outline { background: #1e293b; border-color: #475569; color: #e2e8f0; }
+.dark .btn-card-outline:hover, .dark .ub-btn-outline:hover { background: #334155; }
+.dark .ub-grid label, .dark .up-form-group label, .dark .cs-date-label { color: #94a3b8; }
+.dark .up-room-card-per, .dark .ub-subtitle, .dark .pmo-sub { color: #cbd5e1; }
+.dark .ub-tabs button { color: #64748b; }
+.dark .ub-tabs button.active { color: #f8fafc; }
+.dark .up-status-box { background: #1e293b; border-color: #334155; }
+

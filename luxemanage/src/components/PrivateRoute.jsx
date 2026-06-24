@@ -22,7 +22,14 @@ export function RequireAdmin({ children }) {
 
 export function RequireUser({ children }) {
   const { isLoggedIn, isUser } = useAuth()
-  if (!isLoggedIn) return <Navigate to="/login" replace />
-  if (!isUser)     return <Navigate to="/dashboard" replace />
+  if (!isLoggedIn)  return <Navigate to="/login" replace />
+  if (!isUser)      return <Navigate to="/dashboard" replace />
+  return children
+}
+
+export function RequireReceptionist({ children }) {
+  const { isLoggedIn, isReceptionist, isAdmin } = useAuth()
+  if (!isLoggedIn)                   return <Navigate to="/login" replace />
+  if (!isReceptionist && !isAdmin)   return <Navigate to="/portal" replace />
   return children
 }
