@@ -420,7 +420,7 @@ app.get('/api/user/notifications/stream', authenticateToken, (req: Request, res:
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.flushHeaders();
 
-  const userId = (req as any).user.id;
+  const userId = (req as any).user.userId;
   if (!userSseClients.has(userId)) {
     userSseClients.set(userId, []);
   }
@@ -440,7 +440,7 @@ app.get('/api/user/notifications/stream', authenticateToken, (req: Request, res:
 // User: Lấy danh sách thông báo
 app.get('/api/user/notifications', authenticateToken, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = (req as any).user.userId;
     const notifications = await prisma.notification.findMany({
       where: { user_id: userId },
       orderBy: { createdAt: 'desc' },
@@ -455,7 +455,7 @@ app.get('/api/user/notifications', authenticateToken, async (req: Request, res: 
 // User: Đánh dấu đã đọc
 app.put('/api/user/notifications/:id/read', authenticateToken, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = (req as any).user.userId;
     const notif = await prisma.notification.findUnique({ where: { id: req.params.id as string } });
     if (!notif || notif.user_id !== userId) return res.status(404).json({ error: 'Not found' });
     const updated = await prisma.notification.update({
@@ -471,7 +471,7 @@ app.put('/api/user/notifications/:id/read', authenticateToken, async (req: Reque
 // User: Đánh dấu tất cả đã đọc
 app.put('/api/user/notifications/read-all', authenticateToken, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = (req as any).user.userId;
     await prisma.notification.updateMany({
       where: { user_id: userId, is_read: false },
       data: { is_read: true }
