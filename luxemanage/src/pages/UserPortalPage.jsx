@@ -375,7 +375,7 @@ function UserProfile() {
               </div>
               <div className="up-form-group">
                 <label>EMAIL</label>
-                <input type="email" name="email" value={profile.email} onChange={handleChange} readOnly style={{ backgroundColor: '#f9fafb' }} />
+                <input type="email" name="email" value={profile.email} onChange={handleChange} readOnly />
               </div>
               <div className="up-form-group">
                 <label>SỐ ĐIỆN THOẠI</label>
@@ -434,7 +434,7 @@ function UserProfile() {
             <div className="up-form-grid" style={{ gridTemplateColumns: '1fr', maxWidth: '500px' }}>
               <div className="up-form-group">
                 <label>CHỌN PHƯƠNG THỨC</label>
-                <select name="payment_method_pref" value={profile.payment_method_pref} onChange={handleChange} style={{ width: '100%', padding: '12px 14px', border: '1px solid #d1d5db', borderRadius: '8px', outline: 'none', background: 'white' }}>
+                <select name="payment_method_pref" value={profile.payment_method_pref} onChange={handleChange}>
                   <option value="card">💳 Thẻ tín dụng/Ghi nợ</option>
                   <option value="paypal">PayPal</option>
                   <option value="transfer">🏦 Chuyển khoản ngân hàng</option>

@@ -56,7 +56,7 @@ function CustomerDetailModal({ customerId, onClose, onUpdated }) {
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error || 'Lỗi cập nhật'); return }
-      setCustomer(data); setEditMode(false)
+      setCustomer(prev => ({ ...prev, ...data })); setEditMode(false)
       onUpdated?.()
     } catch { setError('Lỗi kết nối server') }
     finally { setSaving(false) }
@@ -198,7 +198,7 @@ function CustomerDetailModal({ customerId, onClose, onUpdated }) {
               {/* Booking history */}
               <div className="ub-modal-section">
                 <h3>Lịch sử đặt phòng</h3>
-                {customer.bookings?.length === 0 ? (
+                {(!customer.bookings || customer.bookings.length === 0) ? (
                   <div style={{ padding: '24px', textAlign: 'center', color: '#9ca3af', background: '#f9fafb', borderRadius: '8px' }}>Chưa có lịch sử.</div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '280px', overflowY: 'auto' }}>

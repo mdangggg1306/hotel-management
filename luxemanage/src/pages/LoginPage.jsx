@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import './LoginPage.css'
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const successMessage = location.state?.message
   const { login } = useAuth()
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
@@ -94,6 +96,14 @@ export default function LoginPage() {
             <p className="login-subtitle">Vui lòng nhập thông tin xác thực để truy cập hệ thống.</p>
 
             <form onSubmit={handleSubmit} className="login-form">
+              {successMessage && (
+                <div className="login-success" style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', color: '#10b981', padding: '12px', borderRadius: '8px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.875rem' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                  </svg>
+                  {successMessage}
+                </div>
+              )}
               {error && (
                 <div className="login-error">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

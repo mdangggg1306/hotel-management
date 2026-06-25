@@ -20,7 +20,7 @@ export default function RegisterPage() {
 
     const result = await register(fullName, email, password)
     if (result.success) {
-      navigate('/login')
+      navigate('/login', { state: { message: 'Đăng ký thành công! Vui lòng đăng nhập.' } })
     } else {
       setError(result.message)
     }

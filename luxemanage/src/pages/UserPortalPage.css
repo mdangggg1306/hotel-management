@@ -351,6 +351,11 @@
   padding: 12px 16px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px; color: #111827; outline: none; transition: 0.2s;
 }
 .up-form-group input:focus { border-color: #c9a84c; box-shadow: 0 0 0 3px rgba(201,168,76,0.1); }
+.up-form-group input[readOnly] { background: #f9fafb; }
+.up-form-group select {
+  padding: 12px 16px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px; color: #111827; outline: none; transition: 0.2s; background: white; width: 100%;
+}
+.up-form-group select:focus { border-color: #c9a84c; box-shadow: 0 0 0 3px rgba(201,168,76,0.1); }
 
 .up-prefs-grid {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
@@ -365,6 +370,20 @@
 }
 
 .up-form-actions { display: flex; justify-content: flex-end; margin-top: 10px; }
+
+.up-btn-dark {
+  background: #081220;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.up-btn-dark:hover { background: #111827; }
+.up-btn-dark:disabled { opacity: 0.7; cursor: not-allowed; }
 
 /* ---------- BOOKINGS ---------- */
 .up-bookings-container { max-width: 1000px; margin: 100px auto 60px; padding: 0 24px; }
@@ -2293,6 +2312,8 @@
 .dark .up-settings-menu li { color: #94a3b8; border-color: #334155; }
 .dark .up-settings-menu { border-color: #334155; }
 .dark .up-settings-menu h3 { border-bottom-color: #334155; }
+.dark .up-btn-dark { background: #c9a84c; color: #0d1b2a; }
+.dark .up-btn-dark:hover { background: #e2c07a; }
 .dark .btn-card-outline, .dark .ub-btn-outline { background: #1e293b; border-color: #475569; color: #e2e8f0; }
 .dark .btn-card-outline:hover, .dark .ub-btn-outline:hover { background: #334155; }
 .dark .ub-grid label, .dark .up-form-group label, .dark .cs-date-label { color: #94a3b8; }

@@ -28,6 +28,11 @@ const ROOMS = [
 export default function HomePage() {
   const navigate = useNavigate()
 
+  const handleRequireLogin = (e) => {
+    e.preventDefault()
+    navigate('/login', { state: { message: 'Vui lòng đăng nhập để trải nghiệm và đặt phòng.' } })
+  }
+
   return (
     <div className="hotel-landing">
       {/* HEADER */}
@@ -45,7 +50,7 @@ export default function HomePage() {
                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
               </svg>
             </button>
-            <button className="hl-btn-dark" onClick={() => navigate('/login')}>ĐẶT PHÒNG NGAY</button>
+            <button className="hl-btn-dark" onClick={handleRequireLogin}>ĐẶT PHÒNG NGAY</button>
           </div>
         </div>
       </header>
@@ -63,7 +68,7 @@ export default function HomePage() {
             Trải nghiệm sự sang trọng vô song và dịch vụ cá nhân hóa tại những<br/>
             điểm đến ngoạn mục nhất thế giới.
           </p>
-          <button className="hl-btn-gold">KHÁM PHÁ PHÒNG NGHỈ</button>
+          <button className="hl-btn-gold" onClick={handleRequireLogin}>KHÁM PHÁ PHÒNG NGHỈ</button>
         </div>
 
         {/* BOOKING SEARCH BAR */}
@@ -124,7 +129,7 @@ export default function HomePage() {
                 <div className="hl-room-info">
                   <h3 className="hl-room-name">{room.name}</h3>
                   <p className="hl-room-desc">{room.desc}</p>
-                  <a href="#" className="hl-room-book-link">ĐẶT NGAY</a>
+                  <a href="#" className="hl-room-book-link" onClick={handleRequireLogin}>ĐẶT NGAY</a>
                 </div>
               </div>
             ))}
