@@ -175,13 +175,14 @@ app.post('/api/auth/reset-password', async (req: Request, res: Response) => {
 app.put('/api/auth/me', authenticateToken, async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user.userId;
-    const { full_name, phone, dob, address, dietary_prefs, pillow_type, room_location_pref, payment_method_pref } = req.body;
+    const { full_name, phone, id_card, dob, address, dietary_prefs, pillow_type, room_location_pref, payment_method_pref } = req.body;
     
     const user = await prisma.user.update({
       where: { id: userId },
       data: {
         full_name,
         phone,
+        id_card,
         dob: dob ? new Date(dob) : null,
         address,
         dietary_prefs,
@@ -731,10 +732,10 @@ app.post('/api/admin/customers', authenticateAdmin, async (req: Request, res: Re
 // Admin: Update Customer
 app.put('/api/admin/customers/:id', authenticateAdmin, async (req: Request, res: Response) => {
   try {
-    const { full_name, phone, address, membership_tier, membership_points } = req.body;
+    const { full_name, phone, address, id_card, membership_tier, membership_points } = req.body;
     const user = await prisma.user.update({
       where: { id: req.params['id'] as string },
-      data: { full_name, phone, address, membership_tier, membership_points: membership_points ? parseInt(membership_points) : undefined }
+      data: { full_name, phone, address, id_card, membership_tier, membership_points: membership_points ? parseInt(membership_points) : undefined }
     });
     const { password_hash: _, ...safe } = user;
     res.json(safe);
@@ -1411,7 +1412,7 @@ app.get('/api/receptionist/bookings', authenticateReceptionist, async (req: Requ
       prisma.booking.findMany({
         where,
         include: {
-          guest: { select: { full_name: true, email: true, phone: true, membership_tier: true } },
+          guest: { select: { full_name: true, email: true, phone: true, membership_tier: true, id_card: true, dob: true, address: true } },
           roomType: true,
           room: { select: { room_number: true, floor: true } },
           upsells: true,
@@ -1437,7 +1438,7 @@ app.get('/api/receptionist/bookings/:id', authenticateReceptionist, async (req: 
     const booking = await prisma.booking.findUnique({
       where: { id: req.params.id as string },
       include: {
-        guest: { select: { full_name: true, email: true, phone: true, membership_tier: true, membership_points: true } },
+        guest: { select: { full_name: true, email: true, phone: true, membership_tier: true, membership_points: true, id_card: true, dob: true, address: true } },
         roomType: true,
         room: { select: { id: true, room_number: true, floor: true } },
         upsells: true,

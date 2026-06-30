@@ -40,9 +40,7 @@ function App() {
           <Route path="/reset-password"  element={<ResetPasswordPage />} />
 
           {/* ===== USER (khách đặt phòng) ===== */}
-          <Route path="/portal" element={
-            <RequireUser><UserPortalPage /></RequireUser>
-          } />
+          <Route path="/portal" element={<UserPortalPage />} />
 
           {/* ===== RECEPTIONIST (lễ tân) ===== */}
           <Route path="/reception" element={

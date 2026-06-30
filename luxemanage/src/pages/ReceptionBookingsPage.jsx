@@ -4,7 +4,7 @@ import {
   Search, LogIn, LogOut, Clock, Star, RefreshCw,
   Plus, Filter, CheckCircle, X, CreditCard, Banknote,
   Building2, ChevronLeft, ChevronRight, Eye, AlertCircle,
-  User, Phone, Mail, CalendarDays, Bed, Sparkles
+  User, Phone, Mail, CalendarDays, Bed, Sparkles, Shield
 } from 'lucide-react'
 import Layout from '../components/Layout/Layout'
 import './ReceptionBookingsPage.css'
@@ -380,6 +380,21 @@ function DetailDrawer({ booking, onClose }) {
               </div>
               {booking.guest?.phone && (
                 <div className="rb-detail-meta"><Phone size={12}/> {booking.guest.phone}</div>
+              )}
+              {booking.guest?.id_card && (
+                <div className="rb-detail-meta">
+                  <Shield size={12}/> CCCD: {booking.guest.id_card}
+                </div>
+              )}
+              {booking.guest?.dob && (
+                <div className="rb-detail-meta">
+                  <CalendarDays size={12}/> Ngày sinh: {new Date(booking.guest.dob).toLocaleDateString('vi-VN')}
+                </div>
+              )}
+              {booking.guest?.address && (
+                <div className="rb-detail-meta" style={{ maxWidth: 260 }}>
+                  <User size={12}/> {booking.guest.address}
+                </div>
               )}
             </div>
             <MemberBadge tier={booking.guest?.membership_tier || 'Member'}/>

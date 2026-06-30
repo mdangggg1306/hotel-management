@@ -34,6 +34,7 @@ function CustomerDetailModal({ customerId, onClose, onUpdated }) {
             full_name: data.full_name || '',
             phone: data.phone || '',
             address: data.address || '',
+            id_card: data.id_card || '',
             membership_tier: data.membership_tier || 'Member',
             membership_points: data.membership_points || 0
           })
@@ -170,14 +171,31 @@ function CustomerDetailModal({ customerId, onClose, onUpdated }) {
                 </div>
               </div>
 
+              {/* Identity info */}
+              {!editMode && customer.id_card && (
+                <div style={{ marginBottom: '12px', padding: '10px 14px', background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '8px', fontSize: '13px', color: '#374151' }}>
+                  <span style={{ fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.5px' }}>CCCD / CMND: </span>
+                  <span style={{ fontWeight: 600 }}>{customer.id_card}</span>
+                </div>
+              )}
+
               {/* Address (edit mode) */}
               {editMode && (
-                <div style={{ marginBottom: '16px' }}>
-                  <label style={{ fontSize: '12px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '6px' }}>Địa chỉ</label>
-                  <input value={editForm.address} onChange={e => setEditForm({ ...editForm, address: e.target.value })}
-                    placeholder="Địa chỉ khách hàng"
-                    className="admin-input"
-                    style={{ width: '100%', borderRadius: '8px', padding: '8px 12px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                <div style={{ marginBottom: '12px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div>
+                    <label style={{ fontSize: '12px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '6px' }}>CCCD / CMND</label>
+                    <input value={editForm.id_card} onChange={e => setEditForm({ ...editForm, id_card: e.target.value })}
+                      placeholder="Số CCCD / CMND"
+                      className="admin-input"
+                      style={{ width: '100%', borderRadius: '8px', padding: '8px 12px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '12px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '6px' }}>Địa chỉ</label>
+                    <input value={editForm.address} onChange={e => setEditForm({ ...editForm, address: e.target.value })}
+                      placeholder="Địa chỉ khách hàng"
+                      className="admin-input"
+                      style={{ width: '100%', borderRadius: '8px', padding: '8px 12px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                  </div>
                 </div>
               )}
 

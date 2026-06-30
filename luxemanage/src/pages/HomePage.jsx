@@ -1,37 +1,27 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import './HomePage.css'
 
 const NAV_LINKS = ['Phòng nghỉ', 'Ẩm thực', 'Spa', 'Đặt chỗ của tôi']
 
-const ROOMS = [
-  {
-    name: 'Phòng Azure Suite',
-    price: '$1,200',
-    desc: 'Tầm nhìn toàn cảnh đại dương và hồ bơi sân thượng riêng biệt định nghĩa thiên đường tĩnh lặng này.',
-    image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&q=80&w=800'
-  },
-  {
-    name: 'Phòng Royal Penthouse',
-    price: '$2,500',
-    desc: 'Đỉnh cao của sự thanh lịch thành thị, nổi bật với tiện nghi đẳng cấp thế giới và tầm nhìn 360 độ thành phố.',
-    image: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&q=80&w=800'
-  },
-  {
-    name: 'Biệt thự Heritage',
-    price: '$850',
-    desc: 'Sự kết hợp hoàn hảo giữa kỹ nghệ truyền thống và sự sang trọng đương đại trong không gian vườn tươi mát.',
-    image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&q=80&w=800'
-  }
-]
-
 export default function HomePage() {
   const navigate = useNavigate()
+  const [rooms, setRooms] = useState([])
+  const [roomsLoading, setRoomsLoading] = useState(true)
 
-  const handleRequireLogin = (e) => {
-    e.preventDefault()
-    navigate('/login', { state: { message: 'Vui lòng đăng nhập để trải nghiệm và đặt phòng.' } })
-  }
+  useEffect(() => {
+    fetch('/api/rooms/search')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setRooms(data.slice(0, 3))
+        }
+      })
+      .catch(console.error)
+      .finally(() => setRoomsLoading(false))
+  }, [])
+
+  const goToPortal = () => navigate('/portal')
 
   return (
     <div className="hotel-landing">
@@ -50,7 +40,7 @@ export default function HomePage() {
                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
               </svg>
             </button>
-            <button className="hl-btn-dark" onClick={handleRequireLogin}>ĐẶT PHÒNG NGAY</button>
+            <button className="hl-btn-dark" onClick={goToPortal}>ĐẶT PHÒNG NGAY</button>
           </div>
         </div>
       </header>
@@ -68,7 +58,7 @@ export default function HomePage() {
             Trải nghiệm sự sang trọng vô song và dịch vụ cá nhân hóa tại những<br/>
             điểm đến ngoạn mục nhất thế giới.
           </p>
-          <button className="hl-btn-gold" onClick={handleRequireLogin}>KHÁM PHÁ PHÒNG NGHỈ</button>
+          <button className="hl-btn-gold" onClick={goToPortal}>KHÁM PHÁ PHÒNG NGHỈ</button>
         </div>
 
         {/* BOOKING SEARCH BAR */}
@@ -105,7 +95,7 @@ export default function HomePage() {
                 <span>Thêm khách</span>
               </div>
             </div>
-            <button className="hl-btn-dark hl-btn-search" onClick={() => navigate('/portal')}>TÌM KIẾM</button>
+            <button className="hl-btn-dark hl-btn-search" onClick={goToPortal}>TÌM KIẾM</button>
           </div>
         </div>
       </section>
@@ -120,16 +110,40 @@ export default function HomePage() {
           </div>
           
           <div className="hl-rooms-grid">
-            {ROOMS.map((room, idx) => (
-              <div className="hl-room-card" key={idx}>
+            {roomsLoading ? (
+              <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px', color: '#9ca3af', fontSize: '14px' }}>
+                Đang tải dữ liệu phòng...
+              </div>
+            ) : rooms.length === 0 ? (
+              <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px', color: '#9ca3af', fontSize: '14px' }}>
+                Chưa có dữ liệu phòng.
+              </div>
+            ) : rooms.map((room, idx) => (
+              <div className="hl-room-card" key={room.id || idx}>
                 <div className="hl-room-img-wrapper">
-                  <img src={room.image} alt={room.name} className="hl-room-img" />
-                  <div className="hl-room-price-badge">TỪ {room.price} / ĐÊM</div>
+                  <img
+                    src={
+                      (room.images && room.images.length > 0)
+                        ? room.images[0]
+                        : 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&q=80&w=800'
+                    }
+                    alt={room.name}
+                    className="hl-room-img"
+                  />
+                  <div className="hl-room-price-badge">
+                    TỪ {room.base_price ? room.base_price.toLocaleString('vi-VN') + 'đ' : '—'} / ĐÊM
+                  </div>
                 </div>
                 <div className="hl-room-info">
                   <h3 className="hl-room-name">{room.name}</h3>
-                  <p className="hl-room-desc">{room.desc}</p>
-                  <a href="#" className="hl-room-book-link" onClick={handleRequireLogin}>ĐẶT NGAY</a>
+                  <p className="hl-room-desc">{room.description || ''}</p>
+                  <a
+                    href="#"
+                    className="hl-room-book-link"
+                    onClick={e => { e.preventDefault(); goToPortal(); }}
+                  >
+                    ĐẶT NGAY
+                  </a>
                 </div>
               </div>
             ))}
@@ -223,7 +237,7 @@ export default function HomePage() {
           <p className="hl-membership-desc">
             Tham gia chương trình khách hàng thân thiết độc quyền của chúng tôi để mở khóa thế giới quyền lợi Gold Elite, bao gồm nâng hạng phòng miễn phí, trả phòng muộn và các trải nghiệm dành riêng cho hội viên.
           </p>
-          <button className="hl-btn-dark hl-btn-lg">TRỞ THÀNH HỘI VIÊN</button>
+          <button className="hl-btn-dark hl-btn-lg" onClick={goToPortal}>TRỞ THÀNH HỘI VIÊN</button>
         </div>
       </section>
 

@@ -211,13 +211,21 @@ export default function CheckInPage() {
                     <div className="ci-field-row">
                       <div className="ci-field-group">
                         <label>CCCD / Hộ chiếu</label>
-                        <input
-                          className="ci-input"
-                          placeholder="Nhập số CCCD / Passport"
-                          value={passportId}
-                          onChange={e => setPassportId(e.target.value)}
-                          autoFocus
-                        />
+                        {booking.guest?.id_card ? (
+                          <div className="ci-field-value" style={{ color: '#34d399', fontWeight: 600 }}>
+                            <Shield size={12} style={{ display: 'inline', marginRight: 4, color: '#34d399' }}/>
+                            {booking.guest.id_card}
+                            <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 400, marginLeft: 6 }}>đã đăng ký</span>
+                          </div>
+                        ) : (
+                          <input
+                            className="ci-input"
+                            placeholder="Nhập số CCCD / Passport"
+                            value={passportId}
+                            onChange={e => setPassportId(e.target.value)}
+                            autoFocus
+                          />
+                        )}
                       </div>
                       <div className="ci-field-group">
                         <label>Số điện thoại</label>

@@ -228,7 +228,7 @@ function UserProfile() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('personal');
   const [profile, setProfile] = useState({
-    full_name: '', phone: '', email: '', dob: '', address: '',
+    full_name: '', phone: '', email: '', dob: '', address: '', id_card: '',
     dietary_prefs: '', pillow_type: '', room_location_pref: '', payment_method_pref: 'card',
     membership_tier: 'Member', membership_points: 0, tier_points: 0
   });
@@ -245,6 +245,7 @@ function UserProfile() {
           full_name: u.full_name || '',
           email: u.email || '',
           phone: u.phone || '',
+          id_card: u.id_card || '',
           dob: u.dob ? u.dob.split('T')[0] : '',
           address: u.address || '',
           dietary_prefs: u.dietary_prefs || '',
@@ -384,6 +385,10 @@ function UserProfile() {
               <div className="up-form-group">
                 <label>NGÀY SINH</label>
                 <input type="date" name="dob" value={profile.dob} onChange={handleChange} />
+              </div>
+              <div className="up-form-group">
+                <label>CĂN CƯỚC CÔNG DÂN</label>
+                <input type="text" name="id_card" value={profile.id_card} onChange={handleChange} placeholder="Số CCCD / CMND" />
               </div>
               <div className="up-form-group full-width">
                 <label>ĐỊA CHỈ</label>
@@ -617,6 +622,7 @@ export default function UserPortalPage() {
   const [bookingRef, setBookingRef] = useState('')
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [isProcessingPayment, setIsProcessingPayment] = useState(false)
+  const [guestIdCard, setGuestIdCard] = useState('')
 
   const nights = checkin && checkout
     ? Math.max(0, Math.round((new Date(checkout) - new Date(checkin)) / 86400000))
@@ -663,6 +669,12 @@ export default function UserPortalPage() {
     }
     if (nights <= 0) {
       showToast('Ngày trả phòng phải sau ngày nhận phòng!', 'error')
+      return
+    }
+    // Yêu cầu login khi đặt phòng
+    if (!user) {
+      showToast('Vui lòng đăng nhập để đặt phòng!', 'error')
+      navigate('/login', { state: { message: 'Vui lòng đăng nhập để đặt phòng.' } })
       return
     }
     setSelectedRoom(room)
@@ -858,32 +870,49 @@ export default function UserPortalPage() {
           </div>
 
           <div className="up-avatar-wrap">
-            <div className="up-avatar" onClick={() => { setShowUserMenu(!showUserMenu); setShowNotifications(false); }} title={user?.name || user?.full_name}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
-              </svg>
-            </div>
-            {showUserMenu && (
-              <div className="user-dropdown-menu">
-                <div className="ud-header">
-                  <strong>{user?.name || user?.full_name || 'Khách'}</strong>
-                  <span>{user?.email}</span>
+            {user ? (
+              <>
+                <div className="up-avatar" onClick={() => { setShowUserMenu(!showUserMenu); setShowNotifications(false); }} title={user?.name || user?.full_name}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+                  </svg>
                 </div>
-                <div className="ud-divider" />
-                <button className="ud-item" onClick={() => { setStep('profile'); setShowUserMenu(false); }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-                  Hồ sơ của tôi
-                </button>
-                <button className="ud-item" onClick={() => { setStep('bookings'); setShowUserMenu(false); }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-                  Lịch sử đặt phòng
-                </button>
-                <div className="ud-divider" />
-                <button className="ud-item ud-logout" onClick={handleLogout}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
-                  Đăng xuất
-                </button>
-              </div>
+                {showUserMenu && (
+                  <div className="user-dropdown-menu">
+                    <div className="ud-header">
+                      <strong>{user?.name || user?.full_name || 'Khách'}</strong>
+                      <span>{user?.email}</span>
+                    </div>
+                    <div className="ud-divider" />
+                    <button className="ud-item" onClick={() => { setStep('profile'); setShowUserMenu(false); }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                      Hồ sơ của tôi
+                    </button>
+                    <button className="ud-item" onClick={() => { setStep('bookings'); setShowUserMenu(false); }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+                      Lịch sử đặt phòng
+                    </button>
+                    <div className="ud-divider" />
+                    <button className="ud-item ud-logout" onClick={handleLogout}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+                      Đăng xuất
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <button
+                className="up-btn-login-nav"
+                onClick={() => navigate('/login', { state: { message: 'Đăng nhập để đặt phòng và hưởng ưu đãi hội viên.' } })}
+                style={{
+                  background: 'rgba(201,168,76,0.15)', color: '#c9a84c',
+                  border: '1px solid rgba(201,168,76,0.4)', borderRadius: '8px',
+                  padding: '8px 16px', fontSize: '13px', fontWeight: '600',
+                  cursor: 'pointer', transition: 'all 0.2s'
+                }}
+              >
+                Đăng nhập
+              </button>
             )}
           </div>
         </div>
@@ -1370,7 +1399,16 @@ export default function UserPortalPage() {
                 </div>
                 <div className="confirm-info-field" style={{ marginTop: 12 }}>
                   <label>Số điện thoại</label>
-                  <input type="tel" placeholder="Số điện thoại" />
+                  <input type="tel" placeholder="Số điện thoại" defaultValue={user?.phone} />
+                </div>
+                <div className="confirm-info-field" style={{ marginTop: 12 }}>
+                  <label>Căn Cước Công Dân <span style={{ color: '#ef4444' }}>*</span></label>
+                  <input
+                    type="text"
+                    placeholder="Số CCCD / CMND"
+                    value={guestIdCard}
+                    onChange={e => setGuestIdCard(e.target.value)}
+                  />
                 </div>
                 <div className="confirm-info-field" style={{ marginTop: 12 }}>
                   <label>Yêu cầu đặc biệt (Không bắt buộc)</label>
