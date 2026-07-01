@@ -10,7 +10,7 @@ import Layout from '../components/Layout/Layout'
 import { useAuth } from '../context/AuthContext'
 import './ReceptionDashboardPage.css'
 
-const TOKEN = () => localStorage.getItem('luxemanage_token')
+const TOKEN = () => localStorage.getItem('luxury_hotel_token')
 const BASE   = 'http://localhost:3000'
 const fmt    = (n) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n || 0)
 

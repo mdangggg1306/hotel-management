@@ -3,7 +3,7 @@ import { Bed, RefreshCw, CheckCircle, AlertTriangle, Wrench, Users, Info } from 
 import Layout from '../components/Layout/Layout'
 import './ReceptionRoomsPage.css'
 
-const TOKEN = () => localStorage.getItem('luxemanage_token')
+const TOKEN = () => localStorage.getItem('luxury_hotel_token')
 const BASE   = 'http://localhost:3000'
 const fmt    = (n) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n || 0)
 

@@ -3,7 +3,7 @@ import { User, Clock, Wrench, Sparkles, CheckCircle2, ChevronDown } from 'lucide
 import Layout from '../components/Layout/Layout'
 import './RoomMatrixPage.css'
 
-const TOKEN = () => localStorage.getItem('luxemanage_token')  // FIXED: đúng key
+const TOKEN = () => localStorage.getItem('luxury_hotel_token')  // FIXED: đúng key
 const BASE = 'http://localhost:3000'
 
 const STATUS_CONFIG = {

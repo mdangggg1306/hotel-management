@@ -7,7 +7,7 @@ import {
 import Layout from '../components/Layout/Layout'
 import './ServiceRequestsPage.css'
 
-const TOKEN = () => localStorage.getItem('luxemanage_token')
+const TOKEN = () => localStorage.getItem('luxury_hotel_token')
 const BASE   = 'http://localhost:3000'
 
 const CATEGORY_CONFIG = {

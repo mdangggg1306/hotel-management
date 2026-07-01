@@ -71,7 +71,7 @@ export default function ResetPasswordPage() {
           </div>
         </div>
 
-        <div className="forgot-logo">LuxeManage</div>
+        <div className="forgot-logo">Luxury Hotel</div>
         <div className="forgot-system">ELITE HOSPITALITY SYSTEMS</div>
 
         {message && (
@@ -138,7 +138,7 @@ export default function ResetPasswordPage() {
           Quay lại đăng nhập
         </Link>
 
-        <div className="forgot-footer">© 2024 LuxeManage Hospitality Systems. Bảo lưu mọi quyền.</div>
+        <div className="forgot-footer">© 2024 Luxury Hotel Hospitality Systems. Bảo lưu mọi quyền.</div>
       </div>
     </div>
   )

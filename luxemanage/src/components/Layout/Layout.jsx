@@ -35,7 +35,7 @@ function NotificationBell() {
   useEffect(() => {
     if (user?.role !== 'ADMIN') return
 
-    const token = localStorage.getItem('luxemanage_token')
+    const token = localStorage.getItem('luxury_hotel_token')
     if (!token) return
 
     const es = new EventSource(`/api/admin/notifications/stream?token=${token}`)
@@ -210,7 +210,7 @@ export default function Layout({ children }) {
       {/* ===== SIDEBAR ===== */}
       <aside className="sidebar">
         <div className="sidebar-brand" onClick={() => navigate(homePath)}>
-          <span className="sb-logo">LuxeManage</span>
+          <span className="sb-logo">Luxury Hotel</span>
           <span className="sb-sub">{isReceptionist ? 'STAFF PORTAL' : 'Elite Hospitality'}</span>
         </div>
 

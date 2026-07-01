@@ -17,7 +17,7 @@ async function main() {
   await prisma.user.create({
     data: {
       full_name: 'Super Admin',
-      email: 'admin@luxemanage.com',
+      email: 'admin@luxuryhotel.com',
       password_hash: adminPassword,
       role: 'ADMIN'
     }

@@ -4,7 +4,7 @@ import { TrendingUp, TrendingDown, CalendarDays, Download, RefreshCw, UserCheck,
 import Layout from '../components/Layout/Layout'
 import './DashboardPage.css'
 
-const TOKEN = () => localStorage.getItem('luxemanage_token')
+const TOKEN = () => localStorage.getItem('luxury_hotel_token')
 const BASE = 'http://localhost:3000'
 
 export default function DashboardPage() {
@@ -89,7 +89,7 @@ export default function DashboardPage() {
         <div className="dash-header">
           <div>
             <h1 className="page-title">Báo Cáo Hoạt Động</h1>
-            <p className="page-subtitle">Cơ sở: LUXE RESERVE</p>
+            <p className="page-subtitle">Cơ sở: LUXURY HOTEL</p>
           </div>
           <div className="dash-header-right">
             <div className="dash-date">

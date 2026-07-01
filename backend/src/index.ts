@@ -16,7 +16,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get('/api/health', (req: Request, res: Response) => {
-  res.json({ status: 'ok', message: 'LuxeManage API is running!' });
+  res.json({ status: 'ok', message: 'Luxury Hotel API is running!' });
 });
 
 // ─── Auth Middleware (FIXED: jwt.verify instead of jwt.decode) ───────────────

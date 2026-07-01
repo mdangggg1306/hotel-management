@@ -39,7 +39,7 @@ export default function RegisterPage() {
         {/* Left Panel */}
         <div className="login-left slide-in-left">
           <div className="login-brand">
-            <span className="brand-logo">LuxeManage</span>
+            <span className="brand-logo">Luxury Hotel</span>
             <span className="brand-tagline">Elite Hospitality Systems</span>
           </div>
 
@@ -69,7 +69,7 @@ export default function RegisterPage() {
           </div>
 
           <div className="login-footer-text">
-            © 2024 LuxeManage Hospitality Systems. Đã đăng ký bản quyền.
+            © 2024 Luxury Hotel Hospitality Systems. Đã đăng ký bản quyền.
           </div>
         </div>
 

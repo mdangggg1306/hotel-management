@@ -4,7 +4,7 @@ import Layout from '../components/Layout/Layout'
 import './BillingPage.css'
 import './UserPortalPage.css'
 
-const TOKEN = () => localStorage.getItem('luxemanage_token')
+const TOKEN = () => localStorage.getItem('luxury_hotel_token')
 const BASE = 'http://localhost:3000'
 
 const METHOD_LABEL = {
@@ -196,7 +196,7 @@ export default function BillingPage() {
           <div className="bill-header-row">
             <div>
               <h1 className="page-title">Quản Lý Billing</h1>
-              <p className="page-subtitle">Tổng hợp giao dịch và doanh thu toàn hệ thống LUXE RESERVE.</p>
+              <p className="page-subtitle">Tổng hợp giao dịch và doanh thu toàn hệ thống LUXURY HOTEL.</p>
             </div>
             <div className="bill-header-actions">
               <button className="btn-outline-light" onClick={handleExport} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>

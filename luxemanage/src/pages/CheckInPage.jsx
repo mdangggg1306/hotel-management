@@ -8,7 +8,7 @@ import {
 import Layout from '../components/Layout/Layout'
 import './CheckInPage.css'
 
-const TOKEN = () => localStorage.getItem('luxemanage_token')
+const TOKEN = () => localStorage.getItem('luxury_hotel_token')
 const BASE   = 'http://localhost:3000'
 
 const STEPS = ['Xác thực', 'Chọn phòng', 'Xác nhận']

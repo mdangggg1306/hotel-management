@@ -28,7 +28,7 @@ export default function HomePage() {
       {/* HEADER */}
       <header className="hl-header">
         <div className="hl-container hl-header-inner">
-          <Link to="/" className="hl-logo">LuxeManage</Link>
+          <Link to="/" className="hl-logo">Luxury Hotel</Link>
           <nav className="hl-nav">
             {NAV_LINKS.map(link => (
               <a key={link} href="#" className="hl-nav-link">{link}</a>
@@ -245,7 +245,7 @@ export default function HomePage() {
       <footer className="hl-footer">
         <div className="hl-container hl-footer-grid">
           <div className="hl-footer-brand">
-            <div className="hl-logo-gold">LuxeManage</div>
+            <div className="hl-logo-gold">Luxury Hotel</div>
             <p className="hl-footer-tagline">Sáng tạo những kỳ nghỉ tinh tế<br/>nhất thế giới từ năm 1994.</p>
           </div>
           
@@ -281,7 +281,7 @@ export default function HomePage() {
         </div>
         
         <div className="hl-container hl-footer-bottom">
-          <p>© 2024 LuxeManage Hospitality. Bảo lưu mọi quyền. Một bất động sản trong Bộ sưu tập Cao cấp.</p>
+          <p>© 2024 Luxury Hotel Hospitality. Bảo lưu mọi quyền. Một bất động sản trong Bộ sưu tập Cao cấp.</p>
         </div>
       </footer>
     </div>

@@ -12,7 +12,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     // Khôi phục session từ localStorage khi reload trang
     try {
-      const saved = localStorage.getItem('luxemanage_user')
+      const saved = localStorage.getItem('luxury_hotel_user')
       return saved ? JSON.parse(saved) : null
     } catch {
       return null
@@ -20,7 +20,7 @@ export function AuthProvider({ children }) {
   })
 
   useEffect(() => {
-    const token = localStorage.getItem('luxemanage_token')
+    const token = localStorage.getItem('luxury_hotel_token')
     if (token) {
       fetch(`${API_URL}/auth/me`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -64,8 +64,8 @@ export function AuthProvider({ children }) {
       
       const safeUser = { ...data.user, name: data.user.full_name };
       setUser(safeUser);
-      localStorage.setItem('luxemanage_token', data.token);
-      localStorage.setItem('luxemanage_user', JSON.stringify(safeUser));
+      localStorage.setItem('luxury_hotel_token', data.token);
+      localStorage.setItem('luxury_hotel_user', JSON.stringify(safeUser));
       
       return { success: true, user: safeUser };
     } catch (error) {
@@ -76,8 +76,8 @@ export function AuthProvider({ children }) {
   // Hàm đăng xuất
   const logout = () => {
     setUser(null)
-    localStorage.removeItem('luxemanage_token')
-    localStorage.removeItem('luxemanage_user')
+    localStorage.removeItem('luxury_hotel_token')
+    localStorage.removeItem('luxury_hotel_user')
   }
 
   // Helper checks

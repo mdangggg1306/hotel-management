@@ -138,7 +138,7 @@ function UserBookingsList() {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const token = localStorage.getItem('luxemanage_token');
+        const token = localStorage.getItem('luxury_hotel_token');
         const res = await fetch('/api/user/bookings', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -191,7 +191,7 @@ function UserBookingsList() {
               <h3>{b.roomType?.name || 'Phòng Khách Sạn'}</h3>
               <span className={`ub-status status-${b.status.toLowerCase()}`}>{b.status === 'PENDING' ? 'CHỜ XÁC NHẬN' : b.status === 'CONFIRMED' ? 'ĐÃ XÁC NHẬN' : 'ĐÃ HỦY'}</span>
             </div>
-            <p className="ub-resort-name">LUXEMANAGE RESORT</p>
+            <p className="ub-resort-name">Luxury Hotel RESORT</p>
             <div className="ub-grid">
               <div>
                 <label>NGÀY LƯU TRÚ</label>
@@ -237,7 +237,7 @@ function UserProfile() {
 
   useEffect(() => {
     const fetchMe = async () => {
-      const token = localStorage.getItem('luxemanage_token');
+      const token = localStorage.getItem('luxury_hotel_token');
       const res = await fetch('/api/auth/me', { headers: { 'Authorization': `Bearer ${token}` } });
       if (res.ok) {
         const { user: u } = await res.json();
@@ -267,7 +267,7 @@ function UserProfile() {
   const handleSaveProfile = async () => {
     setSaving(true);
     try {
-      const token = localStorage.getItem('luxemanage_token');
+      const token = localStorage.getItem('luxury_hotel_token');
       const res = await fetch('/api/auth/me', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -293,7 +293,7 @@ function UserProfile() {
     }
     setSaving(true);
     try {
-      const token = localStorage.getItem('luxemanage_token');
+      const token = localStorage.getItem('luxury_hotel_token');
       const res = await fetch('/api/auth/change-password', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -528,24 +528,24 @@ export default function UserPortalPage() {
   const [usePoints, setUsePoints] = useState(false)
   const [payMethod, setPayMethod] = useState('card')
 
-  const [darkMode, setDarkMode] = useState(localStorage.getItem('luxemanage_theme') === 'dark');
+  const [darkMode, setDarkMode] = useState(localStorage.getItem('luxury_hotel_theme') === 'dark');
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
     if (darkMode) {
       document.body.classList.add('dark');
-      localStorage.setItem('luxemanage_theme', 'dark');
+      localStorage.setItem('luxury_hotel_theme', 'dark');
     } else {
       document.body.classList.remove('dark');
-      localStorage.setItem('luxemanage_theme', 'light');
+      localStorage.setItem('luxury_hotel_theme', 'light');
     }
   }, [darkMode]);
 
   useEffect(() => {
     if (user) {
       fetch('/api/user/notifications', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('luxemanage_token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('luxury_hotel_token')}` }
       })
       .then(res => res.json())
       .then(data => setNotifications(data))
@@ -557,7 +557,7 @@ export default function UserPortalPage() {
     try {
       await fetch(`/api/user/notifications/${id}/read`, {
         method: 'PUT',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('luxemanage_token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('luxury_hotel_token')}` }
       });
       setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
     } catch (e) { console.error(e); }
@@ -566,7 +566,7 @@ export default function UserPortalPage() {
 
   useEffect(() => {
     if (user) {
-      const token = localStorage.getItem('luxemanage_token');
+      const token = localStorage.getItem('luxury_hotel_token');
       fetch('/api/auth/me', { headers: { 'Authorization': `Bearer ${token}` } })
         .then(res => res.json())
         .then(data => {
@@ -692,7 +692,7 @@ export default function UserPortalPage() {
     if (isProcessingPayment) return;
     setIsProcessingPayment(true);
     try {
-      const token = localStorage.getItem('luxemanage_token');
+      const token = localStorage.getItem('luxury_hotel_token');
       if (!token) throw new Error('Vui lòng đăng nhập lại');
 
       const upsellsData = UPSELLS.filter(u => selectedUpsells.includes(u.id)).map(u => ({
@@ -776,7 +776,7 @@ export default function UserPortalPage() {
     <header className="up-nav">
       <div className="up-nav-inner">
         <div className="up-brand" onClick={resetAll}>
-          <span className="up-logo">LUXE RESERVE</span>
+          <span className="up-logo">LUXURY HOTEL</span>
         </div>
         <nav className="up-nav-links">
           {['Phòng', 'Ẩm thực', 'Spa', 'Lịch sử đặt phòng'].map(l => (
@@ -814,7 +814,7 @@ export default function UserPortalPage() {
                       onClick={async () => {
                         await fetch('/api/user/notifications/read-all', {
                           method: 'PUT',
-                          headers: { Authorization: `Bearer ${localStorage.getItem('luxemanage_token')}` }
+                          headers: { Authorization: `Bearer ${localStorage.getItem('luxury_hotel_token')}` }
                         });
                         setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
                       }}
@@ -965,7 +965,7 @@ export default function UserPortalPage() {
       <div className="up-bookings-container">
         <div className="ub-hero-section">
           <h1 className="ub-title">Lịch sử đặt phòng</h1>
-          <p className="ub-subtitle">Quản lý và xem lại tất cả các chuyến lưu trú tuyệt vời của bạn tại LuxeManage.</p>
+          <p className="ub-subtitle">Quản lý và xem lại tất cả các chuyến lưu trú tuyệt vời của bạn tại Luxury Hotel.</p>
         </div>
         <UserBookingsList />
       </div>
@@ -1137,13 +1137,13 @@ export default function UserPortalPage() {
 
       <footer className="up-footer">
         <div className="up-footer-inner">
-          <span className="up-logo" style={{ fontSize: 18 }}>LuxeManage</span>
+          <span className="up-logo" style={{ fontSize: 18 }}>Luxury Hotel</span>
           <div className="up-footer-links">
             {['Privacy Policy', 'Terms of Service', 'Contact Us', 'Careers', 'Press'].map(l => (
               <a key={l} href="#" className="up-footer-link">{l}</a>
             ))}
           </div>
-          <span className="up-footer-copy">© 2024 LuxeManage Hospitality Group. All rights reserved.</span>
+          <span className="up-footer-copy">© 2024 Luxury Hotel Hospitality Group. All rights reserved.</span>
         </div>
       </footer>
     </div>
@@ -1350,13 +1350,13 @@ export default function UserPortalPage() {
 
         <footer className="up-footer">
           <div className="up-footer-inner">
-            <span className="up-logo" style={{ fontSize: 18 }}>LuxeManage</span>
+            <span className="up-logo" style={{ fontSize: 18 }}>Luxury Hotel</span>
             <div className="up-footer-links">
               {['Privacy Policy', 'Terms of Service', 'Contact Us', 'Careers', 'Press'].map(l => (
                 <a key={l} href="#" className="up-footer-link">{l}</a>
               ))}
             </div>
-            <span className="up-footer-copy">© 2024 LuxeManage Hospitality Group. All rights reserved.</span>
+            <span className="up-footer-copy">© 2024 Luxury Hotel Hospitality Group. All rights reserved.</span>
           </div>
         </footer>
       </div>
@@ -1695,7 +1695,7 @@ export default function UserPortalPage() {
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </div>
-            <h1 className="success-title-vn">Cảm ơn bạn đã lựa chọn LuxeManage</h1>
+            <h1 className="success-title-vn">Cảm ơn bạn đã lựa chọn Luxury Hotel</h1>
             <p className="success-sub-vn">
               Yêu cầu đặt phòng của bạn đã được xác nhận thành công. Một bản tóm tắt chi tiết đã được gửi tới email của bạn.
             </p>
@@ -1765,7 +1765,7 @@ export default function UserPortalPage() {
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2">
                       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
                     </svg>
-                    LuxeManage Resort, 123 Bờ Biển Vàng, Đà Nẵng, Việt Nam
+                    Luxury Hotel Resort, 123 Bờ Biển Vàng, Đà Nẵng, Việt Nam
                   </div>
                   <div className="suc-contact-row">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2">
@@ -1777,7 +1777,7 @@ export default function UserPortalPage() {
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2">
                       <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" />
                     </svg>
-                    concierge@luxemanage.com
+                    concierge@luxuryhotel.com
                   </div>
                 </div>
               </div>
@@ -1853,8 +1853,8 @@ export default function UserPortalPage() {
 
         <footer className="up-footer">
           <div className="up-footer-inner">
-            <span className="up-logo" style={{ fontSize: 18 }}>LuxeManage</span>
-            <span className="up-footer-copy">© 2024 LuxeManage Hospitality Group. All rights reserved.</span>
+            <span className="up-logo" style={{ fontSize: 18 }}>Luxury Hotel</span>
+            <span className="up-footer-copy">© 2024 Luxury Hotel Hospitality Group. All rights reserved.</span>
           </div>
         </footer>
       </div>
