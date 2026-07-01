@@ -1472,6 +1472,7 @@ app.get('/api/receptionist/bookings', authenticateReceptionist, async (req: Requ
 app.get('/api/receptionist/bookings/:id', authenticateReceptionist, async (req: Request, res: Response) => {
   const bookingId = req.params.id as string;
   let booking: any = null;
+  console.log(`\n=== [GET /booking/:id] bookingId=${bookingId} ===`);
 
   // Level 1: Full query
   try {
@@ -1489,7 +1490,7 @@ app.get('/api/receptionist/bookings/:id', authenticateReceptionist, async (req: 
     if (!booking) return res.status(404).json({ error: 'Booking không tồn tại' });
     return res.json(booking);
   } catch (e1) {
-    console.warn('[booking/:id] Full query failed, trying without serviceRequests:', (e1 as Error).message);
+    console.error('[L1 FAIL]', JSON.stringify({ message: (e1 as any).message, code: (e1 as any).code, meta: (e1 as any).meta }));
   }
 
   // Level 2: Không có serviceRequests
@@ -1508,7 +1509,7 @@ app.get('/api/receptionist/bookings/:id', authenticateReceptionist, async (req: 
     booking.serviceRequests = [];
     return res.json(booking);
   } catch (e2) {
-    console.warn('[booking/:id] Level2 failed, trying minimal query:', (e2 as Error).message);
+    console.error('[L2 FAIL]', JSON.stringify({ message: (e2 as any).message, code: (e2 as any).code, meta: (e2 as any).meta }));
   }
 
   // Level 3: Minimal — chỉ lấy các trường cơ bản nhất
@@ -1527,7 +1528,7 @@ app.get('/api/receptionist/bookings/:id', authenticateReceptionist, async (req: 
     booking.room = null;
     return res.json(booking);
   } catch (e3) {
-    console.error('[booking/:id] All fallbacks failed:', e3);
+    console.error('[L3 FAIL - ALL FALLBACKS FAILED]', JSON.stringify({ message: (e3 as any).message, code: (e3 as any).code, meta: (e3 as any).meta }));
     return res.status(500).json({ error: 'Failed to fetch booking' });
   }
 });
