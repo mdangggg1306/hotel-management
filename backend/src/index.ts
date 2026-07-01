@@ -175,12 +175,23 @@ app.post('/api/auth/reset-password', async (req: Request, res: Response) => {
 app.put('/api/auth/me', authenticateToken, async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user.userId;
-    const { full_name, phone, id_card, dob, address, dietary_prefs, pillow_type, room_location_pref, payment_method_pref } = req.body;
-    
+    const { full_name, email, phone, id_card, dob, address, dietary_prefs, pillow_type, room_location_pref, payment_method_pref } = req.body;
+
+    // Nếu có thay đổi email → kiểm tra trùng lặp
+    if (email) {
+      const existing = await prisma.user.findFirst({
+        where: { email, NOT: { id: userId } }
+      });
+      if (existing) {
+        return res.status(400).json({ error: 'Email này đã được sử dụng bởi tài khoản khác' });
+      }
+    }
+
     const user = await prisma.user.update({
       where: { id: userId },
       data: {
         full_name,
+        ...(email ? { email } : {}),
         phone,
         id_card,
         dob: dob ? new Date(dob) : null,

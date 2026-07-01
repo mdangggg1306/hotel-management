@@ -273,10 +273,15 @@ function UserProfile() {
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(profile)
       });
-      if (res.ok) showToast('Cập nhật hồ sơ thành công!');
-      else showToast('Cập nhật thất bại!', 'error');
+      if (res.ok) {
+        showToast('Cập nhật hồ sơ thành công!');
+      } else {
+        const data = await res.json();
+        showToast(data.error || 'Cập nhật thất bại!', 'error');
+      }
     } catch (e) {
       console.error(e);
+      showToast('Lỗi kết nối server!', 'error');
     } finally {
       setSaving(false);
     }
@@ -376,7 +381,7 @@ function UserProfile() {
               </div>
               <div className="up-form-group">
                 <label>EMAIL</label>
-                <input type="email" name="email" value={profile.email} onChange={handleChange} readOnly />
+                <input type="email" name="email" value={profile.email} onChange={handleChange} />
               </div>
               <div className="up-form-group">
                 <label>SỐ ĐIỆN THOẠI</label>
@@ -982,35 +987,48 @@ export default function UserPortalPage() {
       {/* ROOMS LIST */}
       <main className="up-rooms-main">
         <div className="up-search-bar" style={{ margin: '0 auto 40px auto', boxShadow: 'none', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '10px', alignItems: 'center' }}>
-          <div className="up-search-field">
+          <div className="up-search-field" style={{ minWidth: '260px', flexShrink: 0 }}>
             <label>THỜI GIAN LƯU TRÚ</label>
             <div className="up-search-dates">
-              <input type="date" value={checkin} min={today} style={{ paddingLeft: '5px' }}
-                onChange={e => setCheckin(e.target.value)} placeholder="Nhận phòng" />
+              <input type="date" value={checkin} min={today}
+                onChange={e => setCheckin(e.target.value)} />
               <span className="date-sep">–</span>
-              <input type="date" value={checkout} min={checkin || today} style={{ paddingLeft: '5px' }}
-                onChange={e => setCheckout(e.target.value)} placeholder="Trả phòng" />
+              <input type="date" value={checkout} min={checkin || today}
+                onChange={e => setCheckout(e.target.value)} />
             </div>
           </div>
 
           <div className="up-search-divider" />
 
-          <div className="up-search-field">
+          <div className="up-search-field" style={{ minWidth: '160px' }}>
             <label>KHÁCH</label>
-            <div className="up-search-dates">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
-              </svg>
-              <select value={`${adults}_${children}`} onChange={e => {
-                const [a, c] = e.target.value.split('_')
-                setAdults(+a); setChildren(+c)
-              }}>
-                <option value="1_0">1 người lớn</option>
-                <option value="2_0">2 người lớn</option>
-                <option value="2_1">2 người lớn, 1 trẻ em</option>
-                <option value="2_2">2 người lớn, 2 trẻ em</option>
-                <option value="4_0">4 người lớn</option>
-              </select>
+            <div className="up-search-dates" style={{ flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+                </svg>
+                <span style={{ fontSize: '12px', color: '#6b7280', minWidth: '60px' }}>Người lớn</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: 'auto' }}>
+                  <button type="button" onClick={() => setAdults(a => Math.max(1, a - 1))}
+                    style={{ width: '22px', height: '22px', borderRadius: '50%', border: '1px solid #d1d5db', background: 'white', cursor: 'pointer', fontSize: '14px', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#374151' }}>−</button>
+                  <span style={{ fontWeight: 700, fontSize: '14px', minWidth: '16px', textAlign: 'center' }}>{adults}</span>
+                  <button type="button" onClick={() => setAdults(a => a + 1)}
+                    style={{ width: '22px', height: '22px', borderRadius: '50%', border: '1px solid #d1d5db', background: 'white', cursor: 'pointer', fontSize: '14px', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#374151' }}>+</button>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2">
+                  <circle cx="12" cy="8" r="3"/><path d="M6 21v-1a6 6 0 0 1 12 0v1"/>
+                </svg>
+                <span style={{ fontSize: '12px', color: '#6b7280', minWidth: '60px' }}>Trẻ em</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: 'auto' }}>
+                  <button type="button" onClick={() => setChildren(c => Math.max(0, c - 1))}
+                    style={{ width: '22px', height: '22px', borderRadius: '50%', border: '1px solid #d1d5db', background: 'white', cursor: 'pointer', fontSize: '14px', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#374151' }}>−</button>
+                  <span style={{ fontWeight: 700, fontSize: '14px', minWidth: '16px', textAlign: 'center' }}>{children}</span>
+                  <button type="button" onClick={() => setChildren(c => c + 1)}
+                    style={{ width: '22px', height: '22px', borderRadius: '50%', border: '1px solid #d1d5db', background: 'white', cursor: 'pointer', fontSize: '14px', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#374151' }}>+</button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1593,13 +1611,77 @@ export default function UserPortalPage() {
                   </div>
                 )}
 
-                {userPoints >= 23 && (
-                  <div className="confirm-section-card" style={{ marginTop: '24px' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
-                      <input type="checkbox" checked={usePoints} onChange={(e) => setUsePoints(e.target.checked)} style={{ width: '20px', height: '20px', accentColor: '#000' }} />
-                      <div>
-                        <div style={{ fontWeight: 600 }}>Dùng tối đa {maxDiscountPoints} điểm thưởng để giảm giá</div>
-                        <div style={{ fontSize: '13px', color: '#6b7280' }}>Tiết kiệm {(maxDiscountPoints * 1000).toLocaleString('vi-VN')}đ (1 điểm = 1.000đ)</div>
+                {userPoints > 0 && (
+                  <div className="confirm-section-card" style={{ marginTop: '24px', padding: '20px 24px' }}>
+                    {/* Header: hạng + điểm hiện có */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{
+                          padding: '4px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: 700,
+                          letterSpacing: '0.5px', background: user?.membership_tier === 'Platinum' ? 'linear-gradient(135deg,#e5e7eb,#9ca3af)' :
+                            user?.membership_tier === 'Gold' ? 'linear-gradient(135deg,#fef3c7,#f59e0b)' :
+                            user?.membership_tier === 'Silver' ? 'linear-gradient(135deg,#f1f5f9,#94a3b8)' :
+                            'linear-gradient(135deg,#f0fdf4,#4ade80)',
+                          color: user?.membership_tier === 'Gold' ? '#92400e' : '#374151'
+                        }}>
+                          ★ {user?.membership_tier || 'Member'}
+                        </div>
+                        <span style={{ fontSize: '13px', color: '#6b7280' }}>Điểm tích lũy của bạn</span>
+                      </div>
+                      <div style={{ fontWeight: 700, fontSize: '18px', color: '#0d1b2a' }}>
+                        {userPoints.toLocaleString('vi-VN')}
+                        <span style={{ fontSize: '12px', fontWeight: 500, color: '#9ca3af', marginLeft: '4px' }}>điểm</span>
+                      </div>
+                    </div>
+
+                    {/* Divider */}
+                    <div style={{ height: '1px', background: '#f3f4f6', margin: '0 0 16px 0' }} />
+
+                    {/* Quy đổi điểm */}
+                    <label style={{ display: 'flex', alignItems: 'flex-start', gap: '14px', cursor: userPoints >= 23 ? 'pointer' : 'default' }}>
+                      <input
+                        type="checkbox"
+                        checked={usePoints}
+                        onChange={(e) => setUsePoints(e.target.checked)}
+                        disabled={userPoints < 23}
+                        style={{ width: '20px', height: '20px', accentColor: '#0d1b2a', marginTop: '2px', flexShrink: 0 }}
+                      />
+                      <div style={{ flex: 1 }}>
+                        {userPoints >= 23 ? (
+                          <>
+                            <div style={{ fontWeight: 600, fontSize: '14px', color: '#111827', marginBottom: '6px' }}>
+                              Dùng {maxDiscountPoints.toLocaleString('vi-VN')} điểm để giảm giá
+                            </div>
+                            {/* Breakdown row */}
+                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '6px 12px' }}>
+                                <span style={{ fontSize: '16px' }}>🎁</span>
+                                <div>
+                                  <div style={{ fontSize: '11px', color: '#15803d', fontWeight: 600 }}>Tiết kiệm</div>
+                                  <div style={{ fontSize: '15px', fontWeight: 700, color: '#166534' }}>{(maxDiscountPoints * 1000).toLocaleString('vi-VN')}đ</div>
+                                </div>
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fafafa', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px 12px' }}>
+                                <span style={{ fontSize: '16px' }}>🔄</span>
+                                <div>
+                                  <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: 600 }}>Tỉ lệ quy đổi</div>
+                                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#374151' }}>1 điểm = 1.000đ</div>
+                                </div>
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fafafa', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px 12px' }}>
+                                <span style={{ fontSize: '16px' }}>💰</span>
+                                <div>
+                                  <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: 600 }}>Còn lại</div>
+                                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#374151' }}>{(userPoints - maxDiscountPoints).toLocaleString('vi-VN')} điểm</div>
+                                </div>
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <div style={{ color: '#9ca3af', fontSize: '13px' }}>
+                            Cần tối thiểu 23 điểm để quy đổi. Bạn đang có {userPoints} điểm.
+                          </div>
+                        )}
                       </div>
                     </label>
                   </div>

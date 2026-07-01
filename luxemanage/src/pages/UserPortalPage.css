@@ -482,7 +482,8 @@
   margin-top: 28px;
   max-width: 1000px;
   width: 100%;
-  overflow: hidden;
+  overflow: visible;
+  flex-wrap: nowrap;
 }
 .up-search-field {
   flex: 1;
@@ -491,6 +492,7 @@
   flex-direction: column;
   gap: 4px;
   min-width: 0;
+  justify-content: center;
 }
 .up-search-field label {
   font-size: 9px;
@@ -505,7 +507,23 @@
   gap: 6px;
 }
 .up-search-dates svg { flex-shrink: 0; }
-.up-search-dates input,
+.up-search-dates input[type="date"] {
+  border: none;
+  outline: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+  background: transparent;
+  min-width: 105px;
+  width: 105px;
+  flex-shrink: 0;
+  cursor: pointer;
+  /* Giữ appearance để browser hiển thị đúng calendar icon */
+}
+.dark .up-search-dates input[type="date"] {
+  color-scheme: dark;
+  color: #f8fafc;
+}
 .up-search-dates select {
   border: none;
   outline: none;
