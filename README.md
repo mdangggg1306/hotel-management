@@ -1,84 +1,175 @@
-# LuxeManage - Hotel Management System
+# 🏨 Luxury Hotel — Hotel Management System
 
-Dự án Hệ thống quản lý khách sạn (Hotel Management System) bao gồm 2 phần chính: **Backend** (Node.js/Express + Prisma + PostgreSQL) và **Frontend** (React + Vite).
-
-Dưới đây là hướng dẫn chi tiết để setup và chạy dự án này trên máy local.
-
-## Yêu cầu môi trường (Prerequisites)
-- [Node.js](https://nodejs.org/en/) (phiên bản v18 trở lên)
-- [PostgreSQL](https://www.postgresql.org/) (đã được cài đặt và đang chạy)
+Hệ thống quản lý khách sạn full-stack gồm **Backend** (Node.js + Express + Prisma + PostgreSQL) và **Frontend** (React + Vite).
 
 ---
 
-## 1. Cài đặt & Khởi chạy Backend (API)
+## 📋 Yêu cầu môi trường
 
-**Bước 1:** Di chuyển vào thư mục backend
+| Công cụ | Phiên bản tối thiểu | Link tải |
+|---|---|---|
+| **Node.js** | v18+ (khuyến nghị v22) | https://nodejs.org |
+| **PostgreSQL** | v14+ | https://www.postgresql.org/download |
+| **Git** | Bất kỳ | https://git-scm.com |
+
+> **Kiểm tra phiên bản:** `node -v` và `psql --version`
+
+---
+
+## 🚀 Hướng dẫn setup từ đầu
+
+### Bước 1 — Clone dự án
+
+```bash
+git clone <repository-url>
+cd hotel-management
+```
+
+---
+
+### Bước 2 — Tạo Database trong PostgreSQL
+
+Mở **pgAdmin** hoặc chạy lệnh sau trong terminal:
+
+```sql
+psql -U postgres
+CREATE DATABASE luxury_hotel_db;
+\q
+```
+
+> Nếu PostgreSQL của bạn dùng user/password khác, thay `postgres` bằng username của bạn.
+
+---
+
+### Bước 3 — Cấu hình Backend
+
 ```bash
 cd backend
-```
-
-**Bước 2:** Cài đặt các thư viện (dependencies)
-```bash
 npm install
 ```
 
-**Bước 3:** Cấu hình biến môi trường
-Tạo một file `.env` ở thư mục `backend` (nếu chưa có) và điền các thông tin sau:
+Tạo file `.env` từ file mẫu:
+
+```bash
+# Windows
+copy .env.example .env
+
+# macOS / Linux
+cp .env.example .env
+```
+
+Mở file `backend/.env` và điền thông tin thật:
+
 ```env
-# Chuỗi kết nối đến PostgreSQL của bạn. Đổi user, password, port, db_name cho phù hợp
-DATABASE_URL="postgresql://postgres:password123@localhost:5432/luxemanage_db"
-JWT_SECRET="super_secret_jwt_key"
+# Đổi PASSWORD thành mật khẩu PostgreSQL của bạn
+DATABASE_URL="postgresql://postgres:PASSWORD@localhost:5432/luxury_hotel_db?schema=public"
+
+PORT=3000
+
+# Có thể để nguyên hoặc đổi thành chuỗi bí mật bất kỳ
+JWT_SECRET="luxury-hotel-super-secret-key-2024"
+
+# Tuỳ chọn: dùng để gửi email (bỏ trống nếu không cần)
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASS=your_app_password
 ```
 
-**Bước 4:** Khởi tạo Database Schema
-Lệnh này sẽ tạo các bảng (tables) trong PostgreSQL dựa trên schema Prisma.
+---
+
+### Bước 4 — Khởi tạo Database & Seed dữ liệu mẫu
+
 ```bash
+# Tạo bảng trong PostgreSQL theo Prisma schema
 npx prisma db push
-```
 
-**Bước 5:** Đẩy dữ liệu mẫu (Import / Seeding Database)
-Đây là bước **ĐẶC BIỆT QUAN TRỌNG** để hệ thống có sẵn danh sách Phòng, Loại Phòng và tài khoản Admin. Chạy lệnh:
-```bash
+# Nạp dữ liệu mẫu (phòng, loại phòng, tài khoản admin)
 npx prisma db seed
 ```
-Lệnh này sẽ tự động tạo một tài khoản Admin mặc định:
-- **Email:** `admin@luxemanage.com`
-- **Password:** `123456`
 
-**Bước 6:** Chạy server Backend
-```bash
-npm run dev
-```
-Backend sẽ khởi chạy và lắng nghe tại `http://localhost:3000`.
+Sau khi seed xong, hệ thống có sẵn tài khoản:
+
+| Role | Email | Mật khẩu |
+|---|---|---|
+| **Admin** | `admin@luxuryhotel.com` | `123456` |
 
 ---
 
-## 2. Cài đặt & Khởi chạy Frontend (Giao diện)
+### Bước 5 — Chạy Backend
 
-Mở một cửa sổ Terminal/Command Line mới để chạy phần Frontend (đảm bảo Backend vẫn đang chạy song song).
+```bash
+# Vẫn trong thư mục backend/
+npm run dev
+```
 
-**Bước 1:** Di chuyển vào thư mục Frontend
+✅ Backend đang chạy tại: `http://localhost:3000`  
+✅ Kiểm tra: mở trình duyệt vào `http://localhost:3000/api/health` — thấy `{"status":"ok"}` là thành công.
+
+---
+
+### Bước 6 — Cấu hình & Chạy Frontend
+
+Mở **terminal mới** (giữ terminal backend đang chạy):
+
 ```bash
 cd luxemanage
-```
-
-**Bước 2:** Cài đặt các thư viện (dependencies)
-```bash
 npm install
-```
-
-**Bước 3:** Chạy Frontend
-```bash
 npm run dev
 ```
 
-Sau khi chạy xong, Vite sẽ cung cấp một đường link (thường là `http://localhost:5173`). Bạn click vào đường link đó để mở trang web.
+✅ Frontend đang chạy tại: `http://localhost:5173`
 
 ---
 
-## 3. Tài khoản đăng nhập hệ thống Admin
+## 🗂️ Cấu trúc thư mục
 
-Truy cập vào trang đăng nhập và sử dụng tài khoản đã được tạo ra từ lệnh `seed` ở bước 5:
+```
+hotel-management/
+├── backend/              # API server (Express + Prisma)
+│   ├── prisma/
+│   │   ├── schema.prisma # Định nghĩa database schema
+│   │   └── seed.ts       # Dữ liệu mẫu
+│   ├── src/
+│   │   ├── index.ts      # Entry point + tất cả routes
+│   │   └── services/
+│   │       └── emailService.ts
+│   └── .env.example      # Template biến môi trường
+└── luxemanage/           # Frontend (React + Vite)
+    └── src/
+        ├── context/      # AuthContext (quản lý đăng nhập)
+        ├── components/   # Layout, PrivateRoute, Toast
+        └── pages/        # Các trang của ứng dụng
+```
 
-- **Email:** `admin@luxemanage.com`
-- **Mật khẩu:** `123456`
+---
+
+## 🔑 Tài khoản demo
+
+| Role | Email | Mật khẩu | Quyền truy cập |
+|---|---|---|---|
+| Admin | `admin@luxuryhotel.com` | `123456` | Toàn bộ hệ thống |
+| Guest | Tự đăng ký | Tự đặt | Cổng khách hàng `/portal` |
+
+---
+
+## ❓ Lỗi thường gặp
+
+### `DATABASE_URL` connection error
+- Kiểm tra PostgreSQL đang chạy: `pg_ctl status` hoặc mở Services
+- Kiểm tra đúng username, password, tên database trong `.env`
+
+### `Port 5173 is in use`
+- Vite tự chuyển sang port 5174, 5175... — kiểm tra terminal để thấy URL đúng
+
+### `prisma db push` thất bại
+- Đảm bảo đã tạo database trước (`CREATE DATABASE luxury_hotel_db`)
+- Đảm bảo thông tin trong `.env` đúng
+
+### Frontend không gọi được API
+- Đảm bảo backend đang chạy ở port **3000**
+- Vite proxy đã được cấu hình sẵn — không cần đổi gì
+
+---
+
+## 📄 Giấy phép
+
+MIT License — Tự do sử dụng cho mục đích học tập và phát triển.

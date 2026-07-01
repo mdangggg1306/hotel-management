@@ -1094,6 +1094,7 @@ app.get('/api/admin/billing', authenticateAdmin, async (req: Request, res: Respo
 
     res.json({ data: payments, total, page: pageNum, limit: limitNum, totalPages: Math.ceil(total / limitNum) });
   } catch (error) {
+    console.error('Error fetching billing data:', error);
     res.status(500).json({ error: 'Failed to fetch billing data' });
   }
 });
@@ -1439,6 +1440,7 @@ app.get('/api/receptionist/bookings', authenticateReceptionist, async (req: Requ
 
     res.json({ data: bookings, total, page: pageNum, totalPages: Math.ceil(total / limitNum) });
   } catch (error) {
+    console.error('Error fetching bookings:', error);
     res.status(500).json({ error: 'Failed to fetch bookings' });
   }
 });

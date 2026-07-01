@@ -7,9 +7,12 @@ async function main() {
   // Xóa sạch dữ liệu cũ
   await prisma.payment.deleteMany()
   await prisma.upsell.deleteMany()
+  await prisma.serviceRequest.deleteMany()
   await prisma.booking.deleteMany()
   await prisma.room.deleteMany()
   await prisma.roomType.deleteMany()
+  await prisma.pointTransaction.deleteMany()
+  await prisma.notification.deleteMany()
   await prisma.user.deleteMany()
 
   // Create Admin User
