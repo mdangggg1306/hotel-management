@@ -1011,7 +1011,7 @@ export default function UserPortalPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: 'auto' }}>
                   <button type="button" onClick={() => setAdults(a => Math.max(1, a - 1))}
                     style={{ width: '22px', height: '22px', borderRadius: '50%', border: '1px solid #d1d5db', background: 'white', cursor: 'pointer', fontSize: '14px', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#374151' }}>−</button>
-                  <span style={{ fontWeight: 700, fontSize: '14px', minWidth: '16px', textAlign: 'center' }}>{adults}</span>
+                  <span className="guest-value" style={{ fontWeight: 700, fontSize: '14px', minWidth: '16px', textAlign: 'center' }}>{adults}</span>
                   <button type="button" onClick={() => setAdults(a => a + 1)}
                     style={{ width: '22px', height: '22px', borderRadius: '50%', border: '1px solid #d1d5db', background: 'white', cursor: 'pointer', fontSize: '14px', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#374151' }}>+</button>
                 </div>
@@ -1024,7 +1024,7 @@ export default function UserPortalPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: 'auto' }}>
                   <button type="button" onClick={() => setChildren(c => Math.max(0, c - 1))}
                     style={{ width: '22px', height: '22px', borderRadius: '50%', border: '1px solid #d1d5db', background: 'white', cursor: 'pointer', fontSize: '14px', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#374151' }}>−</button>
-                  <span style={{ fontWeight: 700, fontSize: '14px', minWidth: '16px', textAlign: 'center' }}>{children}</span>
+                  <span className="guest-value" style={{ fontWeight: 700, fontSize: '14px', minWidth: '16px', textAlign: 'center' }}>{children}</span>
                   <button type="button" onClick={() => setChildren(c => c + 1)}
                     style={{ width: '22px', height: '22px', borderRadius: '50%', border: '1px solid #d1d5db', background: 'white', cursor: 'pointer', fontSize: '14px', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#374151' }}>+</button>
                 </div>

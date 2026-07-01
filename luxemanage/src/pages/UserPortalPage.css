@@ -520,6 +520,12 @@
   cursor: pointer;
   /* Giữ appearance để browser hiển thị đúng calendar icon */
 }
+.guest-value {
+  color: #111827;
+}
+.dark .guest-value {
+  color: #f8fafc;
+}
 .dark .up-search-dates input[type="date"] {
   color-scheme: dark;
   color: #f8fafc;
