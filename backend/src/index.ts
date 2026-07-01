@@ -1420,23 +1420,46 @@ app.get('/api/receptionist/bookings', authenticateReceptionist, async (req: Requ
       ];
     }
 
-    const [bookings, total] = await Promise.all([
-      prisma.booking.findMany({
-        where,
-        include: {
-          guest: { select: { full_name: true, email: true, phone: true, membership_tier: true, id_card: true, dob: true, address: true } },
-          roomType: true,
-          room: { select: { room_number: true, floor: true } },
-          upsells: true,
-          payments: true,
-          serviceRequests: true
-        },
-        orderBy: { check_in: 'asc' },
-        skip,
-        take: limitNum
-      }),
-      prisma.booking.count({ where })
-    ]);
+    let bookings: any[] = [];
+    let total = 0;
+    try {
+      [bookings, total] = await Promise.all([
+        prisma.booking.findMany({
+          where,
+          include: {
+            guest: { select: { full_name: true, email: true, phone: true, membership_tier: true, id_card: true, dob: true, address: true } },
+            roomType: true,
+            room: { select: { room_number: true, floor: true } },
+            upsells: true,
+            payments: true,
+            serviceRequests: true
+          },
+          orderBy: { check_in: 'asc' },
+          skip,
+          take: limitNum
+        }),
+        prisma.booking.count({ where })
+      ]);
+    } catch {
+      // Fallback: không include serviceRequests nếu bảng chưa migrate
+      [bookings, total] = await Promise.all([
+        prisma.booking.findMany({
+          where,
+          include: {
+            guest: { select: { full_name: true, email: true, phone: true, membership_tier: true, id_card: true, dob: true, address: true } },
+            roomType: true,
+            room: { select: { room_number: true, floor: true } },
+            upsells: true,
+            payments: true,
+          },
+          orderBy: { check_in: 'asc' },
+          skip,
+          take: limitNum
+        }),
+        prisma.booking.count({ where })
+      ]);
+      bookings = bookings.map(b => ({ ...b, serviceRequests: [] }));
+    }
 
     res.json({ data: bookings, total, page: pageNum, totalPages: Math.ceil(total / limitNum) });
   } catch (error) {
@@ -1448,20 +1471,37 @@ app.get('/api/receptionist/bookings', authenticateReceptionist, async (req: Requ
 // Receptionist: Lấy 1 booking theo ID
 app.get('/api/receptionist/bookings/:id', authenticateReceptionist, async (req: Request, res: Response) => {
   try {
-    const booking = await prisma.booking.findUnique({
-      where: { id: req.params.id as string },
-      include: {
-        guest: { select: { full_name: true, email: true, phone: true, membership_tier: true, membership_points: true, id_card: true, dob: true, address: true } },
-        roomType: true,
-        room: { select: { id: true, room_number: true, floor: true } },
-        upsells: true,
-        payments: true,
-        serviceRequests: { orderBy: { createdAt: 'desc' }, take: 5 }
-      }
-    });
+    let booking: any = null;
+    try {
+      booking = await prisma.booking.findUnique({
+        where: { id: req.params.id as string },
+        include: {
+          guest: { select: { full_name: true, email: true, phone: true, membership_tier: true, membership_points: true, id_card: true, dob: true, address: true } },
+          roomType: true,
+          room: { select: { id: true, room_number: true, floor: true } },
+          upsells: true,
+          payments: true,
+          serviceRequests: { orderBy: { createdAt: 'desc' }, take: 5 }
+        }
+      });
+    } catch {
+      // Fallback: serviceRequests table có thể chưa migrate
+      booking = await prisma.booking.findUnique({
+        where: { id: req.params.id as string },
+        include: {
+          guest: { select: { full_name: true, email: true, phone: true, membership_tier: true, membership_points: true, id_card: true, dob: true, address: true } },
+          roomType: true,
+          room: { select: { id: true, room_number: true, floor: true } },
+          upsells: true,
+          payments: true,
+        }
+      });
+      if (booking) booking.serviceRequests = [];
+    }
     if (!booking) return res.status(404).json({ error: 'Booking không tồn tại' });
     res.json(booking);
   } catch (error) {
+    console.error('Error fetching booking detail:', error);
     res.status(500).json({ error: 'Failed to fetch booking' });
   }
 });
